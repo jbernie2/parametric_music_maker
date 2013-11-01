@@ -216,8 +216,44 @@ $(document).ready(function(){
     //THIS NEEDS A LOT OF WORK
     function apply_constraint(env,overall_context){
     
-                
+        var relevant_positions;
+        function get_relevant_positions(env_property, context_property){
+            relevant_positions = new Array();
+            if(env_property typeof Array && context_property typeof Array){
+                for(var i = 0; i < env_property.length; i++){
+                    valid_position = true;
+                    if(env_property.length-i  > context_property){
+                        for(var j = 0; j < context_property.length; j++){
+                           var result = get_relevant_positions(env_property[i],context_property[j])
+                           if(result typeof Array)
+                               relevant_positions.push(result);
+                           else if(!result)
+                               valid_position = false;
+                        }
+                    }
+                }
+                return relevant_positions;
+            }
+            else if((typeof env_property) == (typeof context_property))
+                return (env_property == context_property);
+            else
+                return [];
+        }
 
+        for(var context_key in overall_context){
+            for(var env_key in env){
+                if(context_key == env_key){
+                    relevent_postions.push(
+                        get_relevant_postions(env[env_key],overall_context[context_key]));
+                }
+            }
+        }
+
+        return function(context,constraint){
+            
+        };
+  
+/*
         function get_relevant_positions(){
 
             var relevant_positions;
@@ -226,23 +262,19 @@ $(document).ready(function(){
             var chord_sequence = overall_context['chord_sequence'];
 
             for(var i = 0; i < chord_progression.length; i++){
+                var matching_chords = true;
                 if(i + chord_sequence.length <= chord_progression.length){
-                    var matching_chords = true;
                     for(var j = 0; j < chord_sequence.length && matching_chords; j++){
                         if(!chord_progression[i] == chord_sequence[j])
                             matching_chords = false;
                     }
-                    if(matching_chords){
-                        for(var j = 0; j < chord_sequence.length; j++)
-                            relevant_positions['chord_positions'] = j+i;
-                    }
                 }
-            }
+                if(matching_chords){
+                    relevant_positions['chord_positions'] = i;
+                }
+            }  
         }
         var relevant_positions = get_relevant_postions();
-        
-        return function(context,constraint){
-            
-        };
-   }
+*/
+  }
 }
