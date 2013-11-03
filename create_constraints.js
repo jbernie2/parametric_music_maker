@@ -217,27 +217,45 @@ $(document).ready(function(){
     function apply_constraint(env,overall_context){
     
         var relevant_positions;
+
+        //the solution matrix can have any number of properties describing various things
+        //about its contents, this function takes a property of the matrix and a specific
+        //instance of that property and sees if that particular instance occurs within the 
+        //matrix, this can be used to apply rules to very specific situations
         function get_relevant_positions(env_property, context_property){
+            
+            function check_positions(env_property,context_property){
+                if((env_property typeof Array && context_property typeof Array)&&
+                    env_property.length == context_property.length){
+                    var result = true;
+                    for(var i = 0; i < env_property.length; i++){
+                        if(!check_positions(env_property[i], context_property[i]))
+                            result = false;
+                    }
+                    return result;
+                }
+                else if((typeof env_property) == (typeof context_property))
+                    return (env_property == context_property);
+                else
+                    return false;
+            }
+            
             relevant_positions = new Array();
             if(env_property typeof Array && context_property typeof Array){
                 for(var i = 0; i < env_property.length; i++){
                     valid_position = true;
                     if(env_property.length-i  > context_property){
                         for(var j = 0; j < context_property.length; j++){
-                           var result = get_relevant_positions(env_property[i],context_property[j])
-                           if(result typeof Array)
-                               relevant_positions.push(result);
+                           var result = check_positions(env_property[i],context_property[j])
                            else if(!result)
                                valid_position = false;
                         }
                     }
+                    if(result)
+                        relevant_positions.push(i);
                 }
-                return relevant_positions;
             }
-            else if((typeof env_property) == (typeof context_property))
-                return (env_property == context_property);
-            else
-                return [];
+            return relevant_positions;
         }
 
         for(var context_key in overall_context){
@@ -252,29 +270,5 @@ $(document).ready(function(){
         return function(context,constraint){
             
         };
-  
-/*
-        function get_relevant_positions(){
-
-            var relevant_positions;
-
-            var chord_progression = env['chord_progression'];
-            var chord_sequence = overall_context['chord_sequence'];
-
-            for(var i = 0; i < chord_progression.length; i++){
-                var matching_chords = true;
-                if(i + chord_sequence.length <= chord_progression.length){
-                    for(var j = 0; j < chord_sequence.length && matching_chords; j++){
-                        if(!chord_progression[i] == chord_sequence[j])
-                            matching_chords = false;
-                    }
-                }
-                if(matching_chords){
-                    relevant_positions['chord_positions'] = i;
-                }
-            }  
-        }
-        var relevant_positions = get_relevant_postions();
-*/
-  }
+    }
 }
