@@ -1,5 +1,7 @@
 //TODO: TEST EVERYTHING!!!!!
 
+
+
 $(document).ready(function(){
  
     //there are currently two types of constraints, simple, and compound.
