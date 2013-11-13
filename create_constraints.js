@@ -2,7 +2,7 @@
 
 
 
-$(document).ready(function(){
+//$(document).ready(function(){
  
     //there are currently two types of constraints, simple, and compound.
     //simple constraints consist of a simple comparison between one or two
@@ -26,7 +26,7 @@ $(document).ready(function(){
 
 
 //ALL THESE VARIABLES SHOULD BE PLACED IN THE ASSOCIATIVE ARRAY env
-
+/*
     // a matrix of equal to the size of the solution matrix,
     // but instead of holding note values, each two dimensional
     // element is a list of constraint_ids that apply to that 
@@ -64,7 +64,7 @@ $(document).ready(function(){
     // compound_constraints
     var compound_constraint_lookup;
 
-
+*/
     function generate_id(){
         var next_id = 0;
         return function(){
@@ -116,13 +116,13 @@ $(document).ready(function(){
                     var last_voice = env['last_voice'];
 
                     if(last_chord > chord){
-                        for(var i = 0, i <= last_voice; i++)
+                        for(var i = 0; i <= last_voice; i++)
                         {
                             reset_constraints(
                                 constraint_lookup_by_position[last_chord][i]);
                         }
                     }else if(last_voice > voice){
-                        for(var i = voice+1, i <= last_voice; i++)
+                        for(var i = voice+1; i <= last_voice; i++)
                         {
                             reset_constraints(
                                 constraint_lookup_by_position[chord][i]);
@@ -154,8 +154,8 @@ $(document).ready(function(){
                     }
                     return result;
                 }
-            }
-        }
+            };
+        };
     }
   
     function create_constraint_template(env,name,intervals,options){
@@ -164,7 +164,7 @@ $(document).ready(function(){
             env['constraint_lookup_by_name'];
 
         if(options['constraint_type'] == "check_interval"){
-            contraint_lookup_by_name[name] = check_interval(env,intervals,options);
+            constraint_lookup_by_name[name] = check_interval(env,intervals,options);
         }
     }
  
@@ -182,17 +182,23 @@ $(document).ready(function(){
                 var constraint_id_list = new Array();
                 var compound_constraint_id = next_id();
 
-                var contraint_application_environment = apply_contraints(env,overall_context); 
+                //get all the base positions to apply the constraints to
+                var constraint_application_environment = apply_contraints(env,overall_context); 
 
+                //for each constraint
                 for(var i = 0; i < constraint_names.length; i++){
                     var constraint = constraint_names[i];
 
-                    var applied_constraint = 
+                    //apply the constraint to the positions found, this results
+                    //in a list of applied constraints
+                    var applied_constraints = 
                         constraint_application_environment(env,context[i],constraint);
 
+                    //take the list of applied constraints and give each constraint an
+                    //id and place it in the lookup tables
                     for(var j = 0; j < applied_constraints.length; j++){
                         var constraint_id = next_id();
-                        constraint_lookup[constraint_id] = applied_constraints[i]; 
+                        constraint_lookup[constraint_id] = applied_constraints[j]; 
                         constraint_id_list.push(constraint_id);
                         reverse_constraint_lookup[constraint_id] = compound_constraint_id;
                     }
@@ -229,10 +235,13 @@ $(document).ready(function(){
         //about its contents, this function takes a property of the matrix and a specific
         //instance of that property and sees if that particular instance occurs within the 
         //matrix, this can be used to apply rules to very specific situations
-        function get_relevant_positions(env_property, context_property){
+        function get_all_positions(env_property, context_property, comparison_function){
             
+
+            //default comparison function if none is provided, just checks for equality
+            //of the two properties passed in 
             function check_positions(env_property,context_property){
-                if((env_property typeof Array && context_property typeof Array)&&
+                if((env_property == typeof Array && context_property == typeof Array)&&
                     env_property.length == context_property.length){
                     var result = true;
                     for(var i = 0; i < env_property.length; i++){
@@ -247,62 +256,85 @@ $(document).ready(function(){
                     return false;
             }
             
-            relevant_positions = new Array();
-            if(env_property typeof Array && context_property typeof Array){
+            var positions = new Array();
+            if(env_property == typeof Array && context_property == typeof Array){
                 for(var i = 0; i < env_property.length; i++){
                     valid_position = true;
                     if(env_property.length-i  > context_property){
                         for(var j = 0; j < context_property.length; j++){
-                           var result = check_positions(env_property[i],context_property[j])
-                           else if(!result)
-                               valid_position = false;
+                            var result;
+                            if(comparison_function != undefined)
+                                result = comparison_function(env_property[i],context_property[j]);
+                            else 
+                                result = check_positions(env_property[i],context_property[j]);
+                            
+                            if(!result)
+                                valid_position = false;
                         }
                     }
                     if(result)
-                        relevant_positions.push(i);
+                        positions.push(i);
                 }
             }
-            return relevant_positions;
+            return positions;
         }
 
-        for(var context_key in overall_context){
+        //find all positions that matched all properties
+        function find_universal_positions(){
+            var universal_positions = new Array();
+            for(var i = 0; i < relevant_positions[0].length; i++){
+                var universal_position = true;
+                for(var j = 0; j < relevant_positions.length; j++){
+                    var matches = false;
+                    for(var k = 0; k < relevant_positions[j].length; k++){
+                        if(relevant_positions[0][i] == relevant_positions[j][k])
+                            matches = true;
+                    }
+                    univeral_position = universal_position && matches;
+                }
+                if(univeral_position)
+                    universal_positions.push(relevant_positions[0][i]);
+            }
+            return universal_positions;
+        }
+
+        //loop through all properties of the constraint and see if
+        //there are any that match environment properties, if they have the same
+        //name, they match. If they match, check to see if the properties have
+        //equal content, a customized function can be passed in to compare them
+        var properties = overall_context['properties'];
+        var comparison_functions = overall_context['comparison_functions'];
+
+        for(var property_key in properties){
             for(var env_key in env){
-                if(context_key == env_key){
+                if(property_key == env_key){
                     relevent_postions.push(
-                        get_relevant_postions(env[env_key],overall_context[context_key]));
+                        get_all_positions(env[env_key],
+                                              properties[property_key],
+                                              comparison_functions[property_key]));
                 }
             }
         }
 
+        relevant_positions = find_universal_positions();
+
+
+        //apply a constraint to all the positions that were found to match the
+        //the constraint's properties, this returns a list of the applied constraints
         return function(env,context,constraint){
             var offset = context['offset'];
             var second_offset = context['second_offset'];
             var from_voice = context['from_voice'];
             var to_voice = context['to_voice'];
             var applied_constraints = new Array();
-            var positions_applied = new Array();
-
-            function contains(arr,el){
-                for(var i = 0; i < arr.length; i++){
-                    if(arr[i] == el){
-                        return true;
-                    }
-                }
-                return false;
-            }
-
+ 
             for(var i = 0; i < relevant_positions.length; i++){
-                for(var j = 0; j < relevant_positions[i].length; j++){
-                    if(!contains(applied_postions,relevant_positions[i][j])){
-                        applied_constraints.push(
-                                constraint[i][j]+offset,
-                                constraint[i][j]+offset+second_offset,
-                                from_voice, to_voice));
-
-                        positions_applied.push(relevant_positions[i][j]);
-                    }
-                }
+                var position = relevant_positions[i]; 
+                applied_constraints.push(constraint(position+offset,
+                                                    position+offset+second_offset,
+                                                    from_voice,to_voice));
             }
+            return applied_constraints;
         };
     }  
-}
+//});

@@ -29,18 +29,45 @@
         <!-- <script src="vexflow/build/vexflow/vexflow-min.js"></script> -->
         <!-- <script src="vexflow_test.js"></script> -->
 
-        <!--
         <script src="csp_solver.js"></script>
         <script src="create_matrix.js"></script>
-        -->
+        <script src="create_constraints.js"></script>
 
+	<!--
         <script src="test.js"></script>
+	-->
 
     </head>
     <body>
         <h1>Hello, world!</h1>
         <canvas width=700 height=100"></canvas> 
         <span id="note_matrix"> </span>
+
+	<script type="text/javascript">
+		//intialize environment
+        var env = {};
+        env['constraint_matrix'] = {};  
+        env['constraint_lookup'] = {};
+        env['constraint_lookup_by_name'] = {};
+        env['constraint_lookup_by_position'] = {};
+        env['reverse_constraint_lookup'] = {};
+        env['constraint_result_lookup'] = {};
+        env['compound_constraint_lookup_by_name'] = {};
+        env[' compound_constraint_lookup'] = {};
+
+        
+		var options = {};
+		options['constraint_type'] = "check_interval";
+		create_constraint_template(env,"fifths",[6,7],options);
+	
+
+        var overall_context = {};
+        overall_context['chord_progression'] = ["I","IV","V","I"];	
+		create_compound_constraint_template(env,"parallel_fifths",["fifths","fifths"]);	
+        
+        //function create_compound_constraint_template(env,name,constraint_names){
+		
+	</script>
+
     </body>
 </html>
-
