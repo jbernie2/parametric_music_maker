@@ -66,7 +66,7 @@
 
 */
     function generate_id(){
-        var next_id = 0;
+        var id = 0;
         return function(){
             return "id_"+(++id);
         }
@@ -78,7 +78,7 @@
             return function(id){
                 var constraint_lookup_by_position = 
                     env['constraint_lookup_by_position'];
-                constraint_lookup_by_position[i][j].push(id);
+                constraint_lookup_by_position[chord1][voice1].push(id);
 
                 if(options['greater_than'] == true){
                     return function(matrix){
@@ -183,7 +183,7 @@
                 var compound_constraint_id = next_id();
 
                 //get all the base positions to apply the constraints to
-                var constraint_application_environment = apply_contraints(env,overall_context); 
+                var constraint_application_environment = apply_constraint(env,overall_context); 
 
                 //for each constraint
                 for(var i = 0; i < constraint_names.length; i++){
@@ -229,15 +229,24 @@
     //each constraint applied must be passed in with an offset from the first position.
     function apply_constraint(env,overall_context){
     
-        var relevant_positions;
+        var relevant_positions = new Array();
 
         //the solution matrix can have any number of properties describing various things
         //about its contents, this function takes a property of the matrix and a specific
         //instance of that property and sees if that particular instance occurs within the 
         //matrix, this can be used to apply rules to very specific situations
-        function get_all_positions(env_property, context_property, comparison_function){
+        function get_all_positions(env,env_property, context_property, comparison_function){
             
+            var length = env['length'];
+            var positions = new Array();
+            for(var i = 0; i < length ; i++){
+                if(comparison_function(env,i,env_property,context_property)){
+                    positions.push(i);
+                }  
+            }
+            return positions; 
 
+/*
             //default comparison function if none is provided, just checks for equality
             //of the two properties passed in 
             function check_positions(env_property,context_property){
@@ -260,23 +269,22 @@
             if(env_property == typeof Array && context_property == typeof Array){
                 for(var i = 0; i < env_property.length; i++){
                     valid_position = true;
-                    if(env_property.length-i  > context_property){
-                        for(var j = 0; j < context_property.length; j++){
-                            var result;
-                            if(comparison_function != undefined)
-                                result = comparison_function(env_property[i],context_property[j]);
-                            else 
-                                result = check_positions(env_property[i],context_property[j]);
-                            
-                            if(!result)
-                                valid_position = false;
-                        }
+                    for(var j = 0; j < context_property.length; j++){
+                        var result;
+                        if(comparison_function != undefined)
+                            result = comparison_function(env,i,j,env_property[i],context_property[j]);
+                        else 
+                            result = check_positions(env_property[i],context_property[j]);
+                        
+                        if(!result)
+                            valid_position = false;
                     }
                     if(result)
                         positions.push(i);
                 }
             }
             return positions;
+*/
         }
 
         //find all positions that matched all properties
@@ -307,17 +315,20 @@
 
         for(var property_key in properties){
             for(var env_key in env){
+                //alert(property_key+" "+env_key);
+
                 if(property_key == env_key){
-                    relevent_postions.push(
-                        get_all_positions(env[env_key],
-                                              properties[property_key],
-                                              comparison_functions[property_key]));
+                    relevant_positions.push(
+                        get_all_positions(env,env[env_key],
+                                          properties[property_key],
+                                          comparison_functions[property_key]));
                 }
             }
         }
 
         relevant_positions = find_universal_positions();
 
+        alert("relevant_postions = "+relevant_positions);
 
         //apply a constraint to all the positions that were found to match the
         //the constraint's properties, this returns a list of the applied constraints
@@ -331,7 +342,7 @@
             for(var i = 0; i < relevant_positions.length; i++){
                 var position = relevant_positions[i]; 
                 applied_constraints.push(constraint(position+offset,
-                                                    position+offset+second_offset,
+                                                    position+second_offset,
                                                     from_voice,to_voice));
             }
             return applied_constraints;
