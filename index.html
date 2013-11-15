@@ -31,7 +31,7 @@
         env['constraint_matrix'] = {};  
         env['constraint_lookup'] = {};
         env['constraint_lookup_by_name'] = {};
-        env['constraint_lookup_by_position'] = {};
+        env['constraint_lookup_by_position'] = Array();
         env['reverse_constraint_lookup'] = {};
         env['constraint_result_lookup'] = {};
         env['compound_constraint_lookup_by_name'] = {};
@@ -39,7 +39,9 @@
         env['length'] = 4;
         env['chord_progression'] = ["I","IV","V","I"];	
 
-        
+ 
+ 
+        //create constraint
 		var options = {};
 		options['constraint_type'] = "check_interval";
 		create_constraint_template(env,"fifths",[6,7],options);
@@ -54,14 +56,13 @@
         overall_context['properties']['length'] = 2;
         overall_context['comparison_functions']['length'] = 
             function(env,i,env_property,context_property){
-                if(i+(context_property)-1 > env_property)
+                if(i+(context_property)-1 < env_property)
                     return true;
                 else
                     return false; 
             };
- 
 
-        var compound_constraint = compound_constraint_lookup_by_name['parallel_fifths']; 
+        var compound_constraint = compound_constraint_lookup_by_name['parallel_fifths'];
         var context = [{},{}]; 
         context[0]['offset'] = 0;
         context[0]['second_offset'] = 0;
@@ -78,6 +79,59 @@
                 }
             }
         }
+
+
+    //create matrix
+    function make_voice(ln,hn,vc,u){
+        return {
+            low_note:ln,
+            high_note:hn,
+            voice_crossing:vc,
+            unison:u
+        };
+    }
+
+    var voicing_rules = [make_voice(30,49,false,true),
+                         make_voice(42,61,false,true),
+                         make_voice(54,73,false,true),
+                         make_voice(66,85,false,true)];
+    
+    chord_progression = ["I","IV","V","I"];
+    
+    function make_chord_list(){
+        this.I=[0,4,7];
+        this.IV=[5,9,0];
+        this.V=[7,11,2];
+    }
+    var chord_list = {I:[0,4,7],IV:[5,9,0],V:[7,11,2]};
+
+    var matrix = create_matrix(voicing_rules,chord_progression,chord_list);
+
+
+
+    //solve matrix
+    var results = evaluate_matrix(env,matrix);   
+    
+    display_results_in_log(results);
+    
+    function display_results_in_log(results){
+        for(var i = results[0].length -1; i > -1; i--){
+            var melodic_line = "";
+            for(var j = 0; j < results.length; j++){
+                var note = results[j][i];
+                if(note < 10){
+                    melodic_line += note + "   ";
+                }else if(note < 100){
+                    melodic_line += note + " ";
+                }else{
+                    melodic_line += note + "  ";
+                }
+            }
+            console.log(melodic_line);
+        }
+    }
+
+
 
 	</script>
 

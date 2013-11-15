@@ -1,5 +1,5 @@
 
-$(document).ready(function(){
+//$(document).ready(function(){
     
     //voicing rules
     //  number of voices
@@ -14,7 +14,7 @@ $(document).ready(function(){
 
     //chord_list
     //  string : int array
-    
+/*    
     function make_voice(ln,hn,vc,u){
         return {
             low_note:ln,
@@ -39,7 +39,7 @@ $(document).ready(function(){
     var chord_list = {I:[0,4,7],IV:[5,9,0],V:[7,11,2]};
 
     alert(create_matrix(voicing_rules,chord_progression,chord_list)[0][0]);
-
+*/
     function create_matrix(voicing_rules,chord_progression,chord_list){
         
         var matrix = new Array();
@@ -82,4 +82,4 @@ $(document).ready(function(){
 
         return matrix;
     }
-});
+//});

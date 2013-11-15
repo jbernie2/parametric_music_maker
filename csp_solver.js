@@ -1,6 +1,7 @@
 
-$(document).ready(function(){
-
+//$(document).ready(function(){
+//test code
+/*
     var constraint_list = new Array();
 
     constraint_list.push(function(){
@@ -25,8 +26,8 @@ $(document).ready(function(){
 
     alert(evaluate_matrix(matrix,constraint_list).toString());
     
-
-    function evaluate_matrix(matrix,constraint_list){
+*/
+    function evaluate_matrix(env,matrix){
         
 
         //array of a single number, allows them to be modified by reference
@@ -58,14 +59,25 @@ $(document).ready(function(){
         function pick_value(m){
             return m[Math.floor(Math.random()*m.length)];
         }
+
+
         //test the variable against all constraints
-        function test_value(sm,cl,i,j){
-            for(var k = 0; k < cl.length; k++){
-                var constraint = cl[k];
-                if(!constraint(sm,i,j)) return false;
+        function test_value(env,sm,i,j){
+            var constraints = 
+                env['constraint_lookup_by_position'][i][j];
+            var constraint_lookup = 
+                env['constraint_lookup'];
+            for(var k = 0; k < constraints.length; k++){
+                alert(constraints.length);
+                alert(typeof constraints[k]);
+                alert(constraints[k]);
+                var constraint = constraint_lookup[constraints[k]];
+                if(!constraint(sm)) return false;
             }
             return true;
         }
+
+
         //checks if a solution has be found
         function solution_found(m,i,j){
             if((i+1) >= m.length && (j+1) >= m[i].length)
@@ -101,7 +113,7 @@ $(document).ready(function(){
             if(values_remain(elimination_matrix[i[0]][j[0]])){
                 solution_matrix[i[0]][j[0]] = pick_value(elimination_matrix[i[0]][j[0]]);
                 remove_value(solution_matrix,elimination_matrix,i[0],j[0]);
-                if(test_value(solution_matrix,constraint_list)){
+                if(test_value(env,solution_matrix,i[0],j[0])){
                     solution_complete = solution_found(solution_matrix,i[0],j[0]);
                     next_iteration(matrix,i,j);
                 }
@@ -111,5 +123,5 @@ $(document).ready(function(){
         }
         return solution_matrix;
     }
-});
+//});
 

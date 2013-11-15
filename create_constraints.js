@@ -1,7 +1,5 @@
 //TODO: TEST EVERYTHING!!!!!
 
-
-
 //$(document).ready(function(){
  
     //there are currently two types of constraints, simple, and compound.
@@ -78,6 +76,13 @@
             return function(id){
                 var constraint_lookup_by_position = 
                     env['constraint_lookup_by_position'];
+
+                //initialize array
+                if(!constraint_lookup_by_position[chord1])
+                    constraint_lookup_by_position[chord1] = new Array();
+                if(!constraint_lookup_by_position[chord1][voice1])
+                    constraint_lookup_by_position[chord1][voice1] = new Array();
+
                 constraint_lookup_by_position[chord1][voice1].push(id);
 
                 if(options['greater_than'] == true){
@@ -97,7 +102,7 @@
                     } 
                 }
                 else{
-                   return function(matrix){
+                    return function(matrix){
                         detect_backtrack();
                         var interval = get_interval(matrix);
                         for(var i = 0; i < intervals.length; i++){
@@ -107,7 +112,7 @@
                     } 
                 }
                 function get_interval(matrix){
-                    return (abs(matrix[chord2][voice2] - matrix[chord1][voice1])) 
+                    return (Math.abs(matrix[chord2][voice2] - matrix[chord1][voice1])) 
                 }
                 function detect_backtrack(){
 
@@ -115,17 +120,17 @@
                     var last_chord = env['last_chord'];
                     var last_voice = env['last_voice'];
 
-                    if(last_chord > chord){
+                    if(last_chord > chord1){
                         for(var i = 0; i <= last_voice; i++)
                         {
                             reset_constraints(
                                 constraint_lookup_by_position[last_chord][i]);
                         }
-                    }else if(last_voice > voice){
+                    }else if(last_voice > voice1){
                         for(var i = voice+1; i <= last_voice; i++)
                         {
                             reset_constraints(
-                                constraint_lookup_by_position[chord][i]);
+                                constraint_lookup_by_position[chord1][i]);
                         }
                     } 
                     function reset_constraints(constraint_id_list){
@@ -198,7 +203,7 @@
                     //id and place it in the lookup tables
                     for(var j = 0; j < applied_constraints.length; j++){
                         var constraint_id = next_id();
-                        constraint_lookup[constraint_id] = applied_constraints[j]; 
+                        constraint_lookup[constraint_id] = applied_constraints[j](constraint_id); 
                         constraint_id_list.push(constraint_id);
                         reverse_constraint_lookup[constraint_id] = compound_constraint_id;
                     }
@@ -245,47 +250,7 @@
                 }  
             }
             return positions; 
-
-/*
-            //default comparison function if none is provided, just checks for equality
-            //of the two properties passed in 
-            function check_positions(env_property,context_property){
-                if((env_property == typeof Array && context_property == typeof Array)&&
-                    env_property.length == context_property.length){
-                    var result = true;
-                    for(var i = 0; i < env_property.length; i++){
-                        if(!check_positions(env_property[i], context_property[i]))
-                            result = false;
-                    }
-                    return result;
-                }
-                else if((typeof env_property) == (typeof context_property))
-                    return (env_property == context_property);
-                else
-                    return false;
-            }
-            
-            var positions = new Array();
-            if(env_property == typeof Array && context_property == typeof Array){
-                for(var i = 0; i < env_property.length; i++){
-                    valid_position = true;
-                    for(var j = 0; j < context_property.length; j++){
-                        var result;
-                        if(comparison_function != undefined)
-                            result = comparison_function(env,i,j,env_property[i],context_property[j]);
-                        else 
-                            result = check_positions(env_property[i],context_property[j]);
-                        
-                        if(!result)
-                            valid_position = false;
-                    }
-                    if(result)
-                        positions.push(i);
-                }
-            }
-            return positions;
-*/
-        }
+       }
 
         //find all positions that matched all properties
         function find_universal_positions(){
@@ -315,8 +280,6 @@
 
         for(var property_key in properties){
             for(var env_key in env){
-                //alert(property_key+" "+env_key);
-
                 if(property_key == env_key){
                     relevant_positions.push(
                         get_all_positions(env,env[env_key],
@@ -326,13 +289,13 @@
             }
         }
 
+ 
         relevant_positions = find_universal_positions();
-
-        alert("relevant_postions = "+relevant_positions);
 
         //apply a constraint to all the positions that were found to match the
         //the constraint's properties, this returns a list of the applied constraints
-        return function(env,context,constraint){
+        return function(env,context,constraint_name){
+            var constraint = env['constraint_lookup_by_name'][constraint_name];
             var offset = context['offset'];
             var second_offset = context['second_offset'];
             var from_voice = context['from_voice'];
