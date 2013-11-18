@@ -1,4 +1,7 @@
 //TODO: TEST EVERYTHING!!!!!
+//detect_backtrack not working
+// check_compound_constraint not working
+
 
 //$(document).ready(function(){
  
@@ -103,18 +106,30 @@
                 }
                 else{
                     return function(matrix){
+                        var constraint_result_lookup = 
+                            env['constraint_result_lookup'];
+
+                        console.log("checking constraint for " + chord1+", "+voice1);
                         detect_backtrack();
                         var interval = get_interval(matrix);
+                        console.log("interval.length : " + intervals.length);
+
+                        var result = false;
                         for(var i = 0; i < intervals.length; i++){
                             if(interval == intervals[i])
-                                return check_compound_constraint(id,result);
+                                result = true;
                         }
-                    } 
+                        constraint_result_lookup[id] = result;
+                        check_compound_constraint(id);
+                    }
                 }
                 function get_interval(matrix){
+                    console.log("get_interval");
                     return (Math.abs(matrix[chord2][voice2] - matrix[chord1][voice1])) 
                 }
                 function detect_backtrack(){
+
+                    console.log("detect backtrack");
 
                     var constraint_result_lookup = env['constraint_lookup'];
                     var last_chord = env['last_chord'];
@@ -140,23 +155,21 @@
                         }
                     }
                 }
-                function check_compound_constraint(constraint_id,result){
-                    var constraint_result_lookup = 
-                        env['constraint_result_lookup'];
+                function check_compound_constraint(constraint_id){
+
+                    console.log("check_compound_constraint");
+
                     var reverse_constraint_lookup = 
                         env['reverse_constraint_lookup'];
                     var compound_constraint_lookup = 
                         env['compound_constraint_lookup'];
-                    var compound_constraints_ids = 
-                        reverse_constraint_lookup[contraint_id];
-
-                    constraint_result_lookup[constraint_id] = result;
                     
-                    for(var i = 0; i < compound_constraint_ids.length; i++){
-                        compound_constraint = 
-                            compound_constraint_lookup[compound_constraint_ids[i]];
-                        result = result && compound_constraint();
-                    }
+                    var compound_constraint_id = 
+                        reverse_constraint_lookup[constraint_id];
+                    
+                    var result = compound_constraint();
+                    console.log("result :" + result);
+                    
                     return result;
                 }
             };
@@ -205,10 +218,16 @@
                         var constraint_id = next_id();
                         constraint_lookup[constraint_id] = applied_constraints[j](constraint_id); 
                         constraint_id_list.push(constraint_id);
+
+                        console.log("constraint id : "+constraint_id+
+                        ", compound_constraint_id "+compound_constraint_id);
+
                         reverse_constraint_lookup[constraint_id] = compound_constraint_id;
                     }
                 }
 
+                
+                console.log("compound_contraint_id : "+ compound_constraint_id);
                 compound_constraint_lookup[compound_constraint_id] = function(){
 
                     var constraint_result_lookup = env['constraint_result_lookup'];
@@ -227,6 +246,8 @@
                 };
             };
     }
+
+    //WORKING
 
     //finds the appropraite places to apply a constraint to, then returns ta function
     //that the constraint(s) can then be passed into to be applied to those positions.
@@ -250,7 +271,9 @@
                 }  
             }
             return positions; 
-       }
+        }
+
+        //WORKING
 
         //find all positions that matched all properties
         function find_universal_positions(){
@@ -270,6 +293,9 @@
             }
             return universal_positions;
         }
+
+        
+        //WORKING
 
         //loop through all properties of the constraint and see if
         //there are any that match environment properties, if they have the same
@@ -291,6 +317,8 @@
 
  
         relevant_positions = find_universal_positions();
+
+        //WORKING        
 
         //apply a constraint to all the positions that were found to match the
         //the constraint's properties, this returns a list of the applied constraints
