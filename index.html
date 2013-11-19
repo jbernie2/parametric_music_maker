@@ -47,11 +47,13 @@
 		create_constraint_template(env,"fifths",[6,7],options);
 	
 
+        var cc_options = {};
+        cc_options['rule_type'] = false;
         var overall_context = {};
         overall_context['properties'] = {};
         overall_context['comparison_functions'] = {};
 
-		create_compound_constraint_template(env,"parallel_fifths",["fifths","fifths"]);	
+		create_compound_constraint_template(env,"parallel_fifths",["fifths","fifths"],cc_options);	
  
         overall_context['properties']['length'] = 2;
         overall_context['comparison_functions']['length'] = 
