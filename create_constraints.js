@@ -1,8 +1,7 @@
-//TODO: TEST EVERYTHING!!!!!
-//detect_backtrack not working
-// check_compound_constraint seems to be working for the most part, may need
-//  some more work though
-
+//TODO : 
+//continue to test, although everything seems to be working right now
+//do some commenting, refactoring, and reorganzing
+//try out some different rule types  
 
 //$(document).ready(function(){
  
@@ -87,8 +86,14 @@
                 if(!constraint_lookup_by_position[chord1][voice1])
                     constraint_lookup_by_position[chord1][voice1] = new Array();
 
-                console.log("adding constraint to position "+chord1+", "+voice1);
                 constraint_lookup_by_position[chord1][voice1].push(id);
+                
+                
+                console.log("adding constraint "+id+" to position "+chord1+", "+voice1);
+                console.log("number of constraints : "+
+                    constraint_lookup_by_position[chord1][voice1].length);
+                console.log("number of constraints at 0,0 : "+
+                    constraint_lookup_by_position[0][0].length);
 
                 if(options['greater_than'] == true){
                     return function(matrix){
@@ -128,31 +133,38 @@
                     //console.log("get_interval");
                     return (Math.abs(matrix[chord2][voice2] - matrix[chord1][voice1])) 
                 }
-                function detect_backtrack(){
+                function detect_backtrack(matrix){
 
                     //console.log("detect backtrack");
-
+                    var constraint_lookup_by_position = 
+                        env['constraint_lookup_by_position'];
                     var constraint_result_lookup = env['constraint_lookup'];
-                    var last_chord = env['last_chord'];
-                    var last_voice = env['last_voice'];
 
-                    if(last_chord > chord1){
-                        for(var i = 0; i <= last_voice; i++)
-                        {
+                    if(!env['backtrack']){
+                        return;
+                    }
+                    else{
+                        env['backtrack'] = false;
+                    }
+
+                    if(voice1 == matrix[chord1].length-1){
+                        if(chord1 != matrix.length-1){
                             reset_constraints(
-                                constraint_lookup_by_position[last_chord][i]);
+                                constraint_lookup_by_position[chord1+1][0]);
                         }
-                    }else if(last_voice > voice1){
-                        for(var i = voice+1; i <= last_voice; i++)
-                        {
-                            reset_constraints(
-                                constraint_lookup_by_position[chord1][i]);
-                        }
-                    } 
+                    }
+                    else if(voice1 != matrix[chord1].length-1){
+                        reset_constraints(
+                            constraint_lookup_by_position[chord1][voice1+1]);
+                    }
+                    else{
+                        return;
+                    }
+
                     function reset_constraints(constraint_id_list){
                         for(var i = 0; i < constraint_id_list.length; i++){
                             var id = constraint_id_list[i];
-                            constraint_result_lookup[i] = "true";
+                            constraint_result_lookup[i] = undefined;
                         }
                     }
                 }
@@ -241,10 +253,11 @@
 
 
                     console.log("number of constraints : "+constraint_id_list.length);
+                    console.log(constraint_id_list);
                     for(var i = 0; i < constraint_id_list.length; i++){
                         constraint_result = constraint_result_lookup[constraint_id_list[i]];
                         if(constraint_result == undefined)
-                            result = result && true;
+                            result = result && rule_type;
                         else
                             result = result && constraint_result;
                     }
@@ -336,7 +349,8 @@
             var from_voice = context['from_voice'];
             var to_voice = context['to_voice'];
             var applied_constraints = new Array();
- 
+            
+            
             for(var i = 0; i < relevant_positions.length; i++){
                 var position = relevant_positions[i]; 
                 //console.log("postion of constraint : "+position);
@@ -344,14 +358,16 @@
                                                     from_voice,
                                                     position+second_offset,
                                                     to_voice));
+                /*
                 if(from_voice != to_voice){
                     console.log("HERE");
                     //apply the same constraint to the oppisite set of voices
-                    applied_constraints.push(constraint(position+offset,
+                    applied_constraints.push(constraint(position+second_offset,
                                                         to_voice,
-                                                        position+second_offset,
+                                                        position+offset,
                                                         from_voice));
                 }
+                */
             }
             return applied_constraints;
         };

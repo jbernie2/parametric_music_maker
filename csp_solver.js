@@ -103,6 +103,7 @@
         //step back and try a new value for a variable that has already
         //been assigned a value
         function backtrack(sm,em,m,i,j){
+            env['backtrack'] = true;
             sm[i[0]][j[0]] = undefined;
             em[i[0]][j[0]] =  $.extend(true,[],matrix[i[0]][j[0]]);
             if(j[0]>0) j[0]--; else{j[0] = m[i[0]].length-1; i[0]--;}
