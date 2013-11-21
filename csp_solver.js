@@ -67,11 +67,8 @@
                 env['constraint_lookup_by_position'][i][j];
             var constraint_lookup = 
                 env['constraint_lookup'];
-            console.log("testing value for position : "+i+", "+j);
+            //console.log("testing value for position : "+i+", "+j);
             for(var k = 0; k < constraints.length; k++){
-                alert(constraints.length);
-                alert(typeof constraints[k]);
-                alert(constraints[k]);
                 var constraint = constraint_lookup[constraints[k]];
                 if(!constraint(sm)) return false;
             }

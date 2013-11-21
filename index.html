@@ -43,7 +43,14 @@
  
         //create constraint
 		var options = {};
-		options['constraint_type'] = "check_interval";
+        options['eval_function'] = 
+            function(interval,intervals,options){
+                var result = false;
+                for(var i = 0; i < intervals.length; i++){
+                    if(interval == intervals[i])
+                        result = true;
+                    }
+            };
 		create_constraint_template(env,"fifths",[6,7],options);
 	
 
@@ -111,13 +118,13 @@
 
 
 
-    
+    /*
     for(var i = 0; i < matrix.length; i++){ 
        for(var j = 0; j < matrix[i].length; j++){
             console.log(matrix[i][j]);
         }
     }
-
+    */
 
     //solve matrix
     var results = evaluate_matrix(env,matrix);   

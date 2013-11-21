@@ -73,7 +73,7 @@
         }
     }
 
-    function check_interval(env,intervals,options)
+    function create_constraint(env,intervals,options)
     {
         return function(chord1,voice1,chord2,voice2){
             return function(id){
@@ -88,46 +88,25 @@
 
                 constraint_lookup_by_position[chord1][voice1].push(id);
                 
-                
+                /*
                 console.log("adding constraint "+id+" to position "+chord1+", "+voice1);
                 console.log("number of constraints : "+
                     constraint_lookup_by_position[chord1][voice1].length);
                 console.log("number of constraints at 0,0 : "+
                     constraint_lookup_by_position[0][0].length);
+                */
+                return function(matrix){
+                    var interval;
+                    var result;
+                    var constraint_result_lookup = 
+                        env['constraint_result_lookup'];
+                    var eval_function = options['eval_function'];
 
-                if(options['greater_than'] == true){
-                    return function(matrix){
-                        detect_backtrack();
-                        var interval = get_interval(matrix);
-                        if(interval > intervals[0])
-                            return check_compound_constraint(id,result);
-                    }
-                }
-                else if(options['less_than'] == true){
-                   return function(matrix){
-                        detect_backtrack();
-                        var interval = get_interval(matrix);
-                        if(interval < intervals[0])
-                            return check_compound_constraint(id,result);
-                    } 
-                }
-                else{
-                    return function(matrix){
-                        var constraint_result_lookup = 
-                            env['constraint_result_lookup'];
-
-                        //console.log("checking constraint for " + chord1+", "+voice1);
-                        detect_backtrack();
-                        var interval = get_interval(matrix);
-
-                        var result = false;
-                        for(var i = 0; i < intervals.length; i++){
-                            if(interval == intervals[i])
-                                result = true;
-                        }
-                        constraint_result_lookup[id] = result;
-                        return check_compound_constraint(id);
-                    }
+                    detect_backtrack();
+                    interval = get_interval(matrix);
+                    result = eval_function(interval,intervals,options)
+                    constraint_result_lookup[id] = result;
+                    return check_compound_constraint(id);
                 }
                 function get_interval(matrix){
                     //console.log("get_interval");
@@ -196,9 +175,7 @@
         var constraint_lookup_by_name = 
             env['constraint_lookup_by_name'];
 
-        if(options['constraint_type'] == "check_interval"){
-            constraint_lookup_by_name[name] = check_interval(env,intervals,options);
-        }
+        constraint_lookup_by_name[name] = create_constraint(env,intervals,options);
     }
  
     function create_compound_constraint_template(env,name,constraint_names,options){
@@ -252,8 +229,8 @@
                     var result = true;
 
 
-                    console.log("number of constraints : "+constraint_id_list.length);
-                    console.log(constraint_id_list);
+                    //console.log("number of constraints : "+constraint_id_list.length);
+                    //console.log(constraint_id_list);
                     for(var i = 0; i < constraint_id_list.length; i++){
                         constraint_result = constraint_result_lookup[constraint_id_list[i]];
                         if(constraint_result == undefined)
@@ -261,7 +238,7 @@
                         else
                             result = result && constraint_result;
                     }
-                    console.log("rule_type : "+rule_type);
+                    //console.log("rule_type : "+rule_type);
                     return (result == rule_type);
                 };
             };
@@ -358,16 +335,7 @@
                                                     from_voice,
                                                     position+second_offset,
                                                     to_voice));
-                /*
-                if(from_voice != to_voice){
-                    console.log("HERE");
-                    //apply the same constraint to the oppisite set of voices
-                    applied_constraints.push(constraint(position+second_offset,
-                                                        to_voice,
-                                                        position+offset,
-                                                        from_voice));
                 }
-                */
             }
             return applied_constraints;
         };
