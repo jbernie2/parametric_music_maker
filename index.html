@@ -25,7 +25,77 @@
     <body>
 
 	<script type="text/javascript">
-		//intialize environment
+
+        function apply_constraint_to_all_voices(overall_context, constraint){
+            var context = [{},{}]; 
+            context[0]['offset'] = 0;
+            context[0]['second_offset'] = 0;
+            context[1]['offset'] = 1;
+            context[1]['second_offset'] = 1;
+            for(var i = 0; i < 4; i++){
+                for(var j = 0; j < 4; j++){
+                    if(i != j){
+                        context[0]['from_voice'] = i;
+                        context[0]['to_voice'] = j;
+                        context[1]['from_voice'] = i;
+                        context[1]['to_voice'] = j;
+                        compound_constraint(env,overall_context,context);
+                    }
+                }
+            }
+        }
+        function apply_constraint_to_adjacent_voices(overall_context, constraint){
+            var context = [{},{}]; 
+            context[0]['offset'] = 0;
+            context[0]['second_offset'] = 0;
+            context[1]['offset'] = 1;
+            context[1]['second_offset'] = 1;
+            for(var i = 0; i < 4; i++){
+                if(i > 0){
+                    context[0]['from_voice'] = i;
+                    context[0]['to_voice'] = i-1;
+                    compound_constraint(env,overall_context,context);
+                }
+                if(i < 4){
+                    context[0]['from_voice'] = i;
+                    context[0]['to_voice'] = i+1;
+                    compound_constraint(env,overall_context,context);
+                }
+            }
+        }
+
+        function display_results_in_log(results){
+            for(var i = results[0].length -1; i > -1; i--){
+                var melodic_line = "";
+                for(var j = 0; j < results.length; j++){
+                    var note = results[j][i];
+                    if(note < 10){
+                        melodic_line += note + "   ";
+                    }else if(note < 100){
+                        melodic_line += note + " ";
+                    }else{
+                        melodic_line += note + "  ";
+                    }
+                }
+                console.log(melodic_line);
+            }
+        }
+        function make_voice(ln,hn,vc,u){
+            return {
+                low_note:ln,
+                high_note:hn,
+                voice_crossing:vc,
+                unison:u
+            };
+        }
+        function make_chord_list(){
+            this.I=[0,4,7];
+            this.IV=[5,9,0];
+            this.V=[7,11,2];
+        }
+   
+ 
+        //intialize env
         var env = {};
         env['next_id'] = generate_id();
         env['constraint_matrix'] = {};  
@@ -37,11 +107,9 @@
         env['compound_constraint_lookup_by_name'] = {};
         env['compound_constraint_lookup'] = {};
         env['length'] = 4;
-        env['chord_progression'] = ["I","IV","V","I"];	
-
- 
- 
-        //create constraint
+        env['chord_progression'] = ["I","IV","V","I"];
+    
+        //create parallel fifths constraint
 		var options = {};
         options['eval_function'] = 
             function(interval,intervals,options){
@@ -50,10 +118,11 @@
                     if(interval == intervals[i])
                         result = true;
                     }
+                return result;
             };
+
 		create_constraint_template(env,"fifths",[6,7],options);
 	
-
         var cc_options = {};
         cc_options['rule_type'] = false;
         var overall_context = {};
@@ -72,84 +141,79 @@
             };
 
         var compound_constraint = compound_constraint_lookup_by_name['parallel_fifths'];
-        var context = [{},{}]; 
-        context[0]['offset'] = 0;
-        context[0]['second_offset'] = 0;
-        context[1]['offset'] = 1;
-        context[1]['second_offset'] = 1;
-        for(var i = 0; i < 4; i++){
-            for(var j = 0; j < 4; j++){
-                if(i != j){
-                    context[0]['from_voice'] = i;
-                    context[0]['to_voice'] = j;
-                    context[1]['from_voice'] = i;
-                    context[1]['to_voice'] = j;
-                    compound_constraint(env,overall_context,context);
-                }
-            }
-        }
+        apply_constraint_to_all_voices(overall_context, compound_constraint);
 
 
-    //create matrix
-    function make_voice(ln,hn,vc,u){
-        return {
-            low_note:ln,
-            high_note:hn,
-            voice_crossing:vc,
-            unison:u
-        };
-    }
+        //create min/max distance constraint
+ 		var options = {};
+        options['eval_function'] = 
+            function(interval,intervals,options){
+                var result = false;
 
-    var voicing_rules = [make_voice(30,49,false,true),
-                         make_voice(42,61,false,true),
-                         make_voice(54,73,false,true),
-                         make_voice(66,85,false,true)];
+                for(var i = 0; i < intervals.length; i++){
+                    if(interval >= intervals[i])
+                        result = true;
+                    }
+                return result;
+            };
+
+		create_constraint_template(env,"max_distance",[6],options);
+	
+        var cc_options = {};
+        cc_options['rule_type'] = false;
+        var overall_context = {};
+        overall_context['properties'] = {};
+        overall_context['comparison_functions'] = {};
+
+		create_compound_constraint_template(env,"max_distance",["max_distance"],cc_options);	
+ 
+        overall_context['properties']['length'] = 1;
+        overall_context['comparison_functions']['length'] = 
+            function(env,i,env_property,context_property){
+                if(i+(context_property)-1 < env_property)
+                    return true;
+                else
+                    return false; 
+            };
+
+        var compound_constraint = compound_constraint_lookup_by_name['max_distance'];
+        apply_constraint_to_adjacent_voices(overall_context, compound_constraint);
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+       
+
+        var voicing_rules = [make_voice(30,49,false,true),
+                             make_voice(42,61,false,true),
+                             make_voice(54,73,false,true),
+                             make_voice(66,85,false,true)];
     
-    chord_progression = ["I","IV","V","I"];
+        chord_progression = ["I","IV","V","I"];
     
-    function make_chord_list(){
-        this.I=[0,4,7];
-        this.IV=[5,9,0];
-        this.V=[7,11,2];
-    }
-    var chord_list = {I:[0,4,7],IV:[5,9,0],V:[7,11,2]};
+        var chord_list = {I:[0,4,7],IV:[5,9,0],V:[7,11,2]};
 
-    var matrix = create_matrix(voicing_rules,chord_progression,chord_list);
+        var matrix = create_matrix(voicing_rules,chord_progression,chord_list);
 
 
-
-    /*
-    for(var i = 0; i < matrix.length; i++){ 
-       for(var j = 0; j < matrix[i].length; j++){
-            console.log(matrix[i][j]);
-        }
-    }
-    */
-
-    //solve matrix
-    var results = evaluate_matrix(env,matrix);   
+        //solve matrix
+        var results = evaluate_matrix(env,matrix);   
     
-    display_results_in_log(results);
-    
-    function display_results_in_log(results){
-        for(var i = results[0].length -1; i > -1; i--){
-            var melodic_line = "";
-            for(var j = 0; j < results.length; j++){
-                var note = results[j][i];
-                if(note < 10){
-                    melodic_line += note + "   ";
-                }else if(note < 100){
-                    melodic_line += note + " ";
-                }else{
-                    melodic_line += note + "  ";
-                }
-            }
-            console.log(melodic_line);
-        }
-    }
-
-
-
+        display_results_in_log(results);
+  
+  
 	</script>
 
     </body>

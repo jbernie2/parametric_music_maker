@@ -66,6 +66,7 @@
     var compound_constraint_lookup;
 
 */
+
     function generate_id(){
         var id = 0;
         return function(){
@@ -88,13 +89,13 @@
 
                 constraint_lookup_by_position[chord1][voice1].push(id);
                 
-                /*
-                console.log("adding constraint "+id+" to position "+chord1+", "+voice1);
-                console.log("number of constraints : "+
-                    constraint_lookup_by_position[chord1][voice1].length);
-                console.log("number of constraints at 0,0 : "+
-                    constraint_lookup_by_position[0][0].length);
-                */
+                
+                //console.log("adding constraint "+id+" to position "+chord1+", "+voice1);
+                //console.log("number of constraints : "+
+                    //constraint_lookup_by_position[chord1][voice1].length);
+                //console.log("number of constraints at 0,0 : "+
+                    //constraint_lookup_by_position[0][0].length);
+                
                 return function(matrix){
                     var interval;
                     var result;
@@ -169,7 +170,7 @@
             };
         };
     }
-  
+
     function create_constraint_template(env,name,intervals,options){
 
         var constraint_lookup_by_name = 
@@ -335,9 +336,9 @@
                                                     from_voice,
                                                     position+second_offset,
                                                     to_voice));
-                }
             }
             return applied_constraints;
         };
-    }  
+    }
+  
 //});
