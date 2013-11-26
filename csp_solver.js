@@ -63,6 +63,7 @@
 
         //test the variable against all constraints
         function test_value(env,sm,i,j){
+            if(!env['constraint_lookup_by_name'][i]) return true;
             var constraints = 
                 env['constraint_lookup_by_position'][i][j];
             var constraint_lookup = 

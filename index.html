@@ -56,7 +56,7 @@
                     context[0]['to_voice'] = i-1;
                     compound_constraint(env,overall_context,context);
                 }
-                if(i < 4){
+                if(i < 3){
                     context[0]['from_voice'] = i;
                     context[0]['to_voice'] = i+1;
                     compound_constraint(env,overall_context,context);
@@ -108,7 +108,12 @@
         env['compound_constraint_lookup'] = {};
         env['length'] = 4;
         env['chord_progression'] = ["I","IV","V","I"];
-    
+ 
+
+
+
+
+   
         //create parallel fifths constraint
 		var options = {};
         options['eval_function'] = 
@@ -141,26 +146,39 @@
             };
 
         var compound_constraint = compound_constraint_lookup_by_name['parallel_fifths'];
+        console.log("applying parallel fifths");
         apply_constraint_to_all_voices(overall_context, compound_constraint);
 
 
-        //create min/max distance constraint
+
+
+
+
+
+
+/*
+        //create max distance constraint
  		var options = {};
         options['eval_function'] = 
-            function(interval,intervals,options){
-                var result = false;
+            function(interval,intervals,options){ 
+
+               var result = false;
+                if(!interval)
+                    return result;
 
                 for(var i = 0; i < intervals.length; i++){
-                    if(interval >= intervals[i])
+                    if(interval <= intervals[i])
                         result = true;
                     }
+                
+                console.log("interval : "+interval+", result : "+result);
                 return result;
             };
 
-		create_constraint_template(env,"max_distance",[6],options);
+		create_constraint_template(env,"max_distance",[12],options);
 	
         var cc_options = {};
-        cc_options['rule_type'] = false;
+        cc_options['rule_type'] = true;
         var overall_context = {};
         overall_context['properties'] = {};
         overall_context['comparison_functions'] = {};
@@ -176,10 +194,10 @@
                     return false; 
             };
 
+        console.log("applying max voice distance");
         var compound_constraint = compound_constraint_lookup_by_name['max_distance'];
         apply_constraint_to_adjacent_voices(overall_context, compound_constraint);
-        
-        
+  */      
         
         
         
