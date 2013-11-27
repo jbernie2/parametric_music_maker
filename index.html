@@ -113,7 +113,7 @@
 
 
 
-   
+/*
         //create parallel fifths constraint
 		var options = {};
         options['eval_function'] = 
@@ -148,6 +148,7 @@
         var compound_constraint = compound_constraint_lookup_by_name['parallel_fifths'];
         console.log("applying parallel fifths");
         apply_constraint_to_all_voices(overall_context, compound_constraint);
+*/
 
 
 
@@ -155,8 +156,6 @@
 
 
 
-
-/*
         //create max distance constraint
  		var options = {};
         options['eval_function'] = 
@@ -164,7 +163,7 @@
 
                var result = false;
                 if(!interval)
-                    return result;
+                    return true;
 
                 for(var i = 0; i < intervals.length; i++){
                     if(interval <= intervals[i])
@@ -196,8 +195,7 @@
 
         console.log("applying max voice distance");
         var compound_constraint = compound_constraint_lookup_by_name['max_distance'];
-        apply_constraint_to_adjacent_voices(overall_context, compound_constraint);
-  */      
+        apply_constraint_to_adjacent_voices(overall_context, compound_constraint);      
         
         
         

@@ -63,12 +63,12 @@
 
         //test the variable against all constraints
         function test_value(env,sm,i,j){
-            if(!env['constraint_lookup_by_name'][i]) return true;
+            if(!env['constraint_lookup_by_position'][i]) return true;
             var constraints = 
                 env['constraint_lookup_by_position'][i][j];
             var constraint_lookup = 
                 env['constraint_lookup'];
-            //console.log("testing value for position : "+i+", "+j);
+            console.log("testing value for position : "+i+", "+j);
             for(var k = 0; k < constraints.length; k++){
                 var constraint = constraint_lookup[constraints[k]];
                 if(!constraint(sm)) return false;
