@@ -112,7 +112,7 @@
                         env['constraint_result_lookup'];
                     var eval_function = options['eval_function'];
 
-                    detect_backtrack(matrix);
+                    detect_backtrack(env,matrix);
                     interval = get_interval(matrix);
                     result = eval_function(interval,intervals,options);
                     constraint_result_lookup[id] = result;
@@ -127,7 +127,7 @@
                     }
                     return interval;
                 }
-                function detect_backtrack(matrix){
+                function detect_backtrack(env,matrix){
 
                     //console.log("detect backtrack");
                     var constraint_lookup_by_position = 
@@ -143,8 +143,8 @@
                         var chord = backtrack[i][0];
                         var voice = backtrack[i][1];
                         console.log("resetting position "+chord+", "+voice);
-                     //    reset_constraints(
-                     //       constraint_lookup_by_position[chord][voice]);
+                        reset_constraints(
+                            constraint_lookup_by_position[chord][voice]);
                     }
                     env['backtrack'] = [];
 

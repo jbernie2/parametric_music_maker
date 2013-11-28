@@ -60,7 +60,6 @@
             return m[Math.floor(Math.random()*m.length)];
         }
 
-
         //test the variable against all constraints
         function test_value(env,sm,i,j){
             if(!env['constraint_lookup_by_position'][i]) return true;
@@ -88,6 +87,7 @@
                 if(sm[i][j] == em[i][j][k]) 
                     em[i][j].splice(k,1);
             }
+            console.log("values left at position "+i+", "+j+"  : "+em[i][j].length);
         }
         //move to the next variable in the matrix
         function next_iteration(m,i,j){
@@ -104,10 +104,10 @@
             console.log("backtrack ("+i[0]+", "+j[0]+")"); 
             env['backtrack'].push([i[0],j[0]]);
             sm[i[0]][j[0]] = undefined;
-            em[i[0]][j[0]] =  $.extend(true,[],matrix[i[0]][j[0]]);
+            em[i[0]][j[0]] =  $.extend(true,[],m[i[0]][j[0]]);
             if(j[0]>0) j[0]--; else{j[0] = m[i[0]].length-1; i[0]--;}
             if(i[0]>=0) return true; else return false;
-            }
+        }
  
         //main control loop
         while(!solution_complete && solution_may_exist){
