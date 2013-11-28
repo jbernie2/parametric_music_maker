@@ -98,6 +98,7 @@
         //intialize env
         var env = {};
         env['next_id'] = generate_id();
+        env['backtrack'] = [];
         env['constraint_matrix'] = {};  
         env['constraint_lookup'] = {};
         env['constraint_lookup_by_name'] = {};
@@ -161,20 +162,20 @@
         options['eval_function'] = 
             function(interval,intervals,options){ 
 
-               var result = false;
-                if(!interval)
+                if(interval == undefined)
                     return true;
 
+                var result = false;
                 for(var i = 0; i < intervals.length; i++){
                     if(interval <= intervals[i])
                         result = true;
                     }
                 
-                console.log("interval : "+interval+", result : "+result);
+                //console.log("interval : "+interval+", result : "+result);
                 return result;
             };
 
-		create_constraint_template(env,"max_distance",[12],options);
+		create_constraint_template(env,"max_distance",[6],options);
 	
         var cc_options = {};
         cc_options['rule_type'] = true;

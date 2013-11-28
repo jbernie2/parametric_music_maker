@@ -1,7 +1,12 @@
 //TODO : 
-//there is still a problem with how constraints are being evaluated,
-//the problem may be in detect_backtrack(), but I am not sure
-//I fixed a few problems but there are still some left
+//there seems to be a problem with either detect_backtrack, or with how the
+//constraint truth values are being set, when you enable backtracking 
+//the program goes into an infinte loop, and I am not sure why.
+//backtracking itself seems to be working after I fixed a few things,
+//but it being fixed seems to have broken something else, causing the
+//infinte loop, my guess is that the error is in how the constraint
+//truth values are being set and checked
+
 
 //continue to test, although everything seems to be working right now
 //do some commenting, refactoring, and reorganzing
@@ -101,54 +106,52 @@
                     //constraint_lookup_by_position[0][0].length);
                 
                 return function(matrix){
-                    var interval;
-                    var result;
+                    var interval = undefined;
+                    var result = undefined;
                     var constraint_result_lookup = 
                         env['constraint_result_lookup'];
                     var eval_function = options['eval_function'];
 
                     detect_backtrack(matrix);
                     interval = get_interval(matrix);
-                    result = eval_function(interval,intervals,options)
+                    result = eval_function(interval,intervals,options);
                     constraint_result_lookup[id] = result;
                     return check_compound_constraint(id);
                 }
                 function get_interval(matrix){
-                    //console.log("get_interval");
-                    return (Math.abs(matrix[chord2][voice2] - matrix[chord1][voice1])) 
+                    var interval;
+                    if(matrix[chord2][voice2] == undefined || matrix[chord1][voice1] == undefined){
+                        interval = undefined;
+                    }else{
+                        interval =  (Math.abs(matrix[chord2][voice2] - matrix[chord1][voice1]));
+                    }
+                    return interval;
                 }
                 function detect_backtrack(matrix){
 
                     //console.log("detect backtrack");
                     var constraint_lookup_by_position = 
                         env['constraint_lookup_by_position'];
-                    var constraint_result_lookup = env['constraint_lookup'];
+                    var constraint_result_lookup = env['constraint_result_lookup'];
+                    var backtrack = env['backtrack'];
 
-                    if(!env['backtrack']){
+                    console.log("env[backtrack]  : "+backtrack);
+                    if(backtrack.length == 0){
                         return;
                     }
-                    else{
-                        env['backtrack'] = false;
+                    for(var i = 0; i < backtrack.length; i++){
+                        var chord = backtrack[i][0];
+                        var voice = backtrack[i][1];
+                        console.log("resetting position "+chord+", "+voice);
+                     //    reset_constraints(
+                     //       constraint_lookup_by_position[chord][voice]);
                     }
-
-                    if(voice1 == matrix[chord1].length-1){
-                        if(chord1 != matrix.length-1){
-                            reset_constraints(
-                                constraint_lookup_by_position[chord1+1][0]);
-                        }
-                    }
-                    else if(voice1 != matrix[chord1].length-1){
-                        reset_constraints(
-                            constraint_lookup_by_position[chord1][voice1+1]);
-                    }
-                    else{
-                        return;
-                    }
+                    env['backtrack'] = [];
 
                     function reset_constraints(constraint_id_list){
                         for(var i = 0; i < constraint_id_list.length; i++){
                             var id = constraint_id_list[i];
-                            constraint_result_lookup[i] = undefined;
+                            constraint_result_lookup[id] = undefined;
                         }
                     }
                 }
@@ -167,7 +170,7 @@
                         compound_constraint_lookup[compound_constraint_id]; 
 
                     var result = compound_constraint();
-                    console.log("result :" + result);
+                    //console.log("result :" + result);
                     
                     return result;
                 }
@@ -235,11 +238,14 @@
 
 
                         //console.log("number of constraints : "+constraint_id_list.length);
-                        console.log(constraint_id_list);
+                        //console.log(constraint_id_list);
                         for(var i = 0; i < constraint_id_list.length; i++){
                             constraint_result = constraint_result_lookup[constraint_id_list[i]];
-                            if(constraint_result == undefined)
+                            //console.log("constraint_result : "+constraint_result);
+                            if(constraint_result == undefined){
                                 result = result && rule_type;
+                                //console.log("constraint undefined");
+                            }
                             else
                                 result = result && constraint_result;
                         }

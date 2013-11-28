@@ -68,7 +68,7 @@
                 env['constraint_lookup_by_position'][i][j];
             var constraint_lookup = 
                 env['constraint_lookup'];
-            console.log("testing value for position : "+i+", "+j);
+            //console.log("testing value for position : "+i+", "+j);
             for(var k = 0; k < constraints.length; k++){
                 var constraint = constraint_lookup[constraints[k]];
                 if(!constraint(sm)) return false;
@@ -101,7 +101,8 @@
         //step back and try a new value for a variable that has already
         //been assigned a value
         function backtrack(sm,em,m,i,j){
-            env['backtrack'] = true;
+            console.log("backtrack ("+i[0]+", "+j[0]+")"); 
+            env['backtrack'].push([i[0],j[0]]);
             sm[i[0]][j[0]] = undefined;
             em[i[0]][j[0]] =  $.extend(true,[],matrix[i[0]][j[0]]);
             if(j[0]>0) j[0]--; else{j[0] = m[i[0]].length-1; i[0]--;}
