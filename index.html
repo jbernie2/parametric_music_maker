@@ -123,8 +123,6 @@
                     if(interval == intervals[i])
                         result = true;
                 }
-                if(result)
-                    console.log(result);
                 return result;
             };
 
@@ -150,6 +148,59 @@
         var compound_constraint = compound_constraint_lookup_by_name['parallel_fifths'];
         console.log("applying parallel fifths");
         apply_constraint_to_all_voices(overall_context, compound_constraint);
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //create parallel octave constraint
+		var options = {};
+        options['eval_function'] = 
+            function(interval,intervals,options){
+                var result = false;
+                for(var i = 0; i < intervals.length; i++){
+                    if(interval == intervals[i])
+                        result = true;
+                }
+                return result;
+            };
+
+		create_constraint_template(env,"fifths",[12],options);
+	
+        var cc_options = {};
+        cc_options['rule_type'] = false;
+        var overall_context = {};
+        overall_context['properties'] = {};
+        overall_context['comparison_functions'] = {};
+
+		create_compound_constraint_template(env,"parallel_fifths",["fifths","fifths"],cc_options);	
+ 
+        overall_context['properties']['length'] = 2;
+        overall_context['comparison_functions']['length'] = 
+            function(env,i,env_property,context_property){
+                if(i+(context_property)-1 < env_property)
+                    return true;
+                else
+                    return false; 
+            };
+
+        var compound_constraint = compound_constraint_lookup_by_name['parallel_fifths'];
+        console.log("applying parallel octaves");
+        apply_constraint_to_all_voices(overall_context, compound_constraint);
+
+
+
+
+
+
 
 
 
@@ -201,6 +252,46 @@
         
 
 
+        //create min distance constraint
+ 		var options = {};
+        options['eval_function'] = 
+            function(interval,intervals,options){ 
+
+                if(interval == undefined)
+                    return true;
+
+                var result = false;
+                for(var i = 0; i < intervals.length; i++){
+                    if(interval >= intervals[i])
+                        result = true;
+                    }
+                
+                return result;
+            };
+
+		create_constraint_template(env,"max_distance",[1],options);
+	
+        var cc_options = {};
+        cc_options['rule_type'] = true;
+        var overall_context = {};
+        overall_context['properties'] = {};
+        overall_context['comparison_functions'] = {};
+
+		create_compound_constraint_template(env,"max_distance",["max_distance"],cc_options);	
+ 
+        overall_context['properties']['length'] = 1;
+        overall_context['comparison_functions']['length'] = 
+            function(env,i,env_property,context_property){
+                if(i+(context_property)-1 < env_property)
+                    return true;
+                else
+                    return false; 
+            };
+
+        console.log("applying min voice distance");
+        var compound_constraint = compound_constraint_lookup_by_name['max_distance'];
+        apply_constraint_to_adjacent_voices(overall_context, compound_constraint);      
+        
 
 
 
@@ -208,9 +299,6 @@
 
 
 
-
-
-       
 
         var voicing_rules = [make_voice(30,49,false,true),
                              make_voice(42,61,false,true),
