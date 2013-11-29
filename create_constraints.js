@@ -98,13 +98,6 @@
 
                 constraint_lookup_by_position[chord1][voice1].push(id);
                 
-                
-                //console.log("adding constraint "+id+" to position "+chord1+", "+voice1);
-                //console.log("number of constraints : "+
-                    //constraint_lookup_by_position[chord1][voice1].length);
-                //console.log("number of constraints at 0,0 : "+
-                    //constraint_lookup_by_position[0][0].length);
-                
                 return function(matrix){
                     var interval = undefined;
                     var result = undefined;
@@ -129,20 +122,17 @@
                 }
                 function detect_backtrack(env,matrix){
 
-                    //console.log("detect backtrack");
                     var constraint_lookup_by_position = 
                         env['constraint_lookup_by_position'];
                     var constraint_result_lookup = env['constraint_result_lookup'];
                     var backtrack = env['backtrack'];
 
-                    console.log("env[backtrack]  : "+backtrack);
                     if(backtrack.length == 0){
                         return;
                     }
                     for(var i = 0; i < backtrack.length; i++){
                         var chord = backtrack[i][0];
                         var voice = backtrack[i][1];
-                        console.log("resetting position "+chord+", "+voice);
                         reset_constraints(
                             constraint_lookup_by_position[chord][voice]);
                     }
@@ -157,20 +147,18 @@
                 }
                 function check_compound_constraint(constraint_id){
 
-                    //console.log("check_compound_constraint");
-
                     var reverse_constraint_lookup = 
                         env['reverse_constraint_lookup'];
                     var compound_constraint_lookup = 
                         env['compound_constraint_lookup'];
-                    
+ 
                     var compound_constraint_id = 
                         reverse_constraint_lookup[constraint_id];
+
                     var compound_constraint = 
                         compound_constraint_lookup[compound_constraint_id]; 
 
-                    var result = compound_constraint();
-                    //console.log("result :" + result);
+                    var result = compound_constraint(constraint_id);
                     
                     return result;
                 }
@@ -203,58 +191,44 @@
 
                 //for each valid position to apply constraint
                 for(var i = 0; i < constraint_positions.length; i++){
-                     var constraint_id_list = new Array();
+                     var constraint_id_list = [];
                      var compound_constraint_id = next_id();
                      var applied_constraints = 
                       apply_compound_constraint(env,constraint_positions[i],constraint_names,context);
 
                     //take the list of applied constraints and give each constraint an
                     //id and place it in the lookup tables
-                    //console.log(applied_constraints.length);
                     for(var j = 0; j < applied_constraints.length; j++){
                         var constraint_id = next_id();
                         constraint_lookup[constraint_id] = applied_constraints[j](constraint_id); 
                         constraint_id_list.push(constraint_id);
 
-                        //console.log("constraint id : "+constraint_id+
-                        //", compound_constraint_id "+compound_constraint_id);
-
                         reverse_constraint_lookup[constraint_id] = compound_constraint_id;
-
                     }
 
-  
-                    //console.log("number of constraints : "+constraint_id_list.length);
-
                     //place compound constraint in lookuptable 
-                    //console.log("compound_contraint_id : "+ compound_constraint_id);
-                    compound_constraint_lookup[compound_constraint_id] = function(){
-
-                        //console.log("checking compound constraint");
-
-                        var constraint_result_lookup = env['constraint_result_lookup'];
-                        var rule_type = options['rule_type'];
-                        var result = true;
-
-
-                        //console.log("number of constraints : "+constraint_id_list.length);
-                        //console.log(constraint_id_list);
-                        for(var i = 0; i < constraint_id_list.length; i++){
-                            constraint_result = constraint_result_lookup[constraint_id_list[i]];
-                            //console.log("constraint_result : "+constraint_result);
-                            if(constraint_result == undefined){
-                                result = result && rule_type;
-                                //console.log("constraint undefined");
-                            }
-                            else
-                                result = result && constraint_result;
-                        }
-                        return (result == rule_type);
-                    };
+                    compound_constraint_lookup[compound_constraint_id] = create_compound_constraint(env,constraint_id_list);
                 }
             };
 
-    }
+            function create_compound_constraint(env,constraint_id_list){
+                return function(sanity_check){
+                    var constraint_result_lookup = env['constraint_result_lookup'];
+                    var rule_type = options['rule_type'];
+                    var result = true;
+
+                    for(var i = 0; i < constraint_id_list.length; i++){
+                        constraint_result = constraint_result_lookup[constraint_id_list[i]];
+                        if(constraint_result == undefined){
+                            result = result && rule_type;
+                        }
+                        else
+                            result = result && constraint_result;
+                    }
+                    return (result == rule_type);
+                };
+            }
+        }
 
     //WORKING
 
@@ -326,7 +300,6 @@
 
  
         relevant_positions = find_universal_positions();
-        //console.log("relevant_positions : "+relevant_positions);
 
         return relevant_positions;
     }
@@ -334,7 +307,6 @@
 
     // a new apply constraint method, I dont think the old one is correct
     function apply_compound_constraint(env,starting_position,constraint_names,context){
-        //console.log("constraint_names.length "+constraint_names.length);
 
         var applied_constraints = new Array();
         for(var i = 0; i < constraint_names.length; i++){
@@ -343,9 +315,6 @@
             var second_offset = context[i]['second_offset'];
             var from_voice = context[i]['from_voice'];
             var to_voice = context[i]['to_voice'];
-            //console.log("offset     : "+offset+" second_offset : "+ second_offset);
-            //console.log("from_voice : "+from_voice+"      to_voice : "+to_voice);
-
 
             applied_constraints.push(constraint(starting_position+offset,
                                                 from_voice,
