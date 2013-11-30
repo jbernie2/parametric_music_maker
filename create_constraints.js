@@ -98,6 +98,10 @@
 
                 constraint_lookup_by_position[chord1][voice1].push(id);
                 
+                var note1 = {};
+                var note2 = {};
+                set_note_positions(note1,note2);
+
                 return function(matrix){
                     var interval = undefined;
                     var result = undefined;
@@ -113,10 +117,13 @@
                 }
                 function get_interval(matrix){
                     var interval;
-                    if(matrix[chord2][voice2] == undefined || matrix[chord1][voice1] == undefined){
+                    var first_note =  matrix[note1['chord']][note1['voice']];
+                    var second_note = matrix[note2['chord']][note2['voice']];
+
+                    if(second_note == undefined || first_note == undefined){
                         interval = undefined;
                     }else{
-                        interval =  (Math.abs(matrix[chord2][voice2] - matrix[chord1][voice1]));
+                        interval =  second_note - first_note;
                     }
                     return interval;
                 }
@@ -161,6 +168,39 @@
                     var result = compound_constraint(constraint_id);
                     
                     return result;
+                }
+                //note1 will always be the note that occurs ealier in the music
+                //unless both notes occur at the same time, then it will be the 
+                //one that occurrs in the lower voice, this is done so that the 
+                //interval calculations are more informative, allowing rules
+                //to infer the direction of the movement between the two notes
+                function set_note_positions(note1,note2){
+                    if(chord1 < chord2){
+                        note1['chord'] = chord1;
+                        note1['voice'] = voice1;
+                        note2['chord'] = chord2;
+                        note2['voice'] = voice2;
+                    }
+                    else if(chord1 == chord2){
+                        if(voice1 <= voice2){
+                            note1['chord'] = chord1;
+                            note1['voice'] = voice1;
+                            note2['chord'] = chord2;
+                            note2['voice'] = voice2;
+                        }
+                        else{
+                            note1['chord'] = chord2;
+                            note1['voice'] = voice2;
+                            note2['chord'] = chord1;
+                            note2['voice'] = voice1;
+                        }
+                    }
+                    else{
+                        note1['chord'] = chord2;
+                        note1['voice'] = voice2;
+                        note2['chord'] = chord1;
+                        note2['voice'] = voice1; 
+                    }
                 }
             };
         };
