@@ -1,12 +1,10 @@
 //TODO : 
-//there seems to be a problem with either detect_backtrack, or with how the
-//constraint truth values are being set, when you enable backtracking 
-//the program goes into an infinte loop, and I am not sure why.
-//backtracking itself seems to be working after I fixed a few things,
-//but it being fixed seems to have broken something else, causing the
-//infinte loop, my guess is that the error is in how the constraint
-//truth values are being set and checked
-
+// need to make constraint application better, currently you need to apply 
+// a constraint and its reverse in order to get it to work, for example
+// if a constraint checks an interval between voice 1 and 2, the same rule
+// has to be applied to check the interval between voice 2 and 1, otherwise,
+//the constraint is only checked when checking the first voice, and not when the
+// second one is modified
 
 //continue to test, although everything seems to be working right now
 //do some commenting, refactoring, and reorganzing
