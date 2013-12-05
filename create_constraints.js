@@ -1,11 +1,4 @@
 //TODO : 
-// need to make constraint application better, currently you need to apply 
-// a constraint and its reverse in order to get it to work, for example
-// if a constraint checks an interval between voice 1 and 2, the same rule
-// has to be applied to check the interval between voice 2 and 1, otherwise,
-//the constraint is only checked when checking the first voice, and not when the
-// second one is modified
-
 //continue to test, although everything seems to be working right now
 //do some commenting, refactoring, and reorganzing
 //try out some different rule types  
@@ -93,8 +86,13 @@
                     constraint_lookup_by_position[chord1] = new Array();
                 if(!constraint_lookup_by_position[chord1][voice1])
                     constraint_lookup_by_position[chord1][voice1] = new Array();
+                 if(!constraint_lookup_by_position[chord2])
+                    constraint_lookup_by_position[chord2] = new Array();
+                if(!constraint_lookup_by_position[chord2][voice2])
+                    constraint_lookup_by_position[chord2][voice2] = new Array();
 
                 constraint_lookup_by_position[chord1][voice1].push(id);
+                constraint_lookup_by_position[chord2][voice2].push(id);
                 
                 var note1 = {};
                 var note2 = {};
