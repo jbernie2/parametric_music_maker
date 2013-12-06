@@ -1,4 +1,4 @@
-function create_compound_constraint_template(env,name,constraint_names,options){
+function create_compound_constraint(env,name,constraint_names,options){
     compound_constraint_lookup_by_name = 
         env['compound_constraint_lookup_by_name'];
     
@@ -11,7 +11,7 @@ function create_compound_constraint_template(env,name,constraint_names,options){
             var reverse_constraint_lookup = env['reverse_constraint_lookup'];
 
             //get all the base positions to apply the constraints to
-            var constraint_positions = apply_constraint(env,overall_context); 
+            var constraint_positions = get_relevant_positions(env,overall_context); 
 
             //for each valid position to apply constraint
             for(var i = 0; i < constraint_positions.length; i++){
@@ -32,11 +32,11 @@ function create_compound_constraint_template(env,name,constraint_names,options){
 
                 //place compound constraint in lookuptable 
                 compound_constraint_lookup[compound_constraint_id] = 
-                    create_compound_constraint(env,constraint_id_list);
+                    check_compound_constraint(env,constraint_id_list);
             }
         };
 
-        function create_compound_constraint(env,constraint_id_list){
+        function check_compound_constraint(env,constraint_id_list){
             return function(sanity_check){
                 var constraint_result_lookup = env['constraint_result_lookup'];
                 var rule_type = options['rule_type'];
@@ -54,7 +54,7 @@ function create_compound_constraint_template(env,name,constraint_names,options){
             };
         }
 }
-function apply_constraint(env,overall_context){
+function get_relevant_positions(env,overall_context){
     
         var relevant_positions = new Array();
 

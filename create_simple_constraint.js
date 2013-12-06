@@ -1,5 +1,5 @@
 function create_simple_constraint(env,name,intervals,options){
-
+    var constraint_lookup_by_name = env['constraint_lookup_by_name'];
     constraint_lookup_by_name[name] = 
         function(chord1,voice1,chord2,voice2){
             return function(id){

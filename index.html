@@ -13,9 +13,12 @@
         <!-- <script src="vexflow/build/vexflow/vexflow-min.js"></script> -->
         <!-- <script src="vexflow_test.js"></script> -->
 
+        <script src="initialize_environment.js"></script>
         <script src="csp_solver.js"></script>
         <script src="create_matrix.js"></script>
-        <script src="create_constraints.js"></script>
+        <script src="create_simple_constraint.js"></script>
+        <script src="create_compound_constraint.js"></script>
+        
 
 	<!--
         <script src="test.js"></script>
@@ -102,20 +105,9 @@
             this.IV=[5,9,0];
             this.V=[7,11,2];
         }
-   
- 
-        //intialize env
-        var env = {};
-        env['next_id'] = generate_id();
-        env['backtrack'] = [];
-        env['constraint_matrix'] = {};  
-        env['constraint_lookup'] = {};
-        env['constraint_lookup_by_name'] = {};
-        env['constraint_lookup_by_position'] = Array();
-        env['reverse_constraint_lookup'] = {};
-        env['constraint_result_lookup'] = {};
-        env['compound_constraint_lookup_by_name'] = {};
-        env['compound_constraint_lookup'] = {};
+
+    
+        var env = initialize_environment();
         env['length'] = 4;
         env['chord_progression'] = ["I","IV","V","I"];
  
@@ -139,7 +131,7 @@
                 return result;
             };
 
-		create_constraint_template(env,"fifths",[6,7],options);
+		create_simple_constraint(env,"fifths",[6,7],options);
 	
         var cc_options = {};
         cc_options['rule_type'] = false;
@@ -147,7 +139,7 @@
         overall_context['properties'] = {};
         overall_context['comparison_functions'] = {};
 
-		create_compound_constraint_template(env,"parallel_fifths",["fifths","fifths"],cc_options);	
+		create_compound_constraint(env,"parallel_fifths",["fifths","fifths"],cc_options);	
  
         overall_context['properties']['length'] = 2;
         overall_context['comparison_functions']['length'] = 
@@ -186,7 +178,7 @@
                 return result;
             };
 
-		create_constraint_template(env,"fifths",[12],options);
+		create_simple_constraint(env,"fifths",[12],options);
 	
         var cc_options = {};
         cc_options['rule_type'] = false;
@@ -194,7 +186,7 @@
         overall_context['properties'] = {};
         overall_context['comparison_functions'] = {};
 
-		create_compound_constraint_template(env,"parallel_fifths",["fifths","fifths"],cc_options);	
+		create_compound_constraint(env,"parallel_fifths",["fifths","fifths"],cc_options);	
  
         overall_context['properties']['length'] = 2;
         overall_context['comparison_functions']['length'] = 
@@ -239,7 +231,7 @@
                 return result;
             };
 
-		create_constraint_template(env,"max_distance",[12],options);
+		create_simple_constraint(env,"max_distance",[12],options);
 	
         var cc_options = {};
         cc_options['rule_type'] = true;
@@ -247,7 +239,7 @@
         overall_context['properties'] = {};
         overall_context['comparison_functions'] = {};
 
-		create_compound_constraint_template(env,"max_distance",["max_distance"],cc_options);	
+		create_compound_constraint(env,"max_distance",["max_distance"],cc_options);	
  
         overall_context['properties']['length'] = 1;
         overall_context['comparison_functions']['length'] = 
@@ -286,7 +278,7 @@
                 return result;
             };
 
-		create_constraint_template(env,"max_distance",[1],options);
+		create_simple_constraint(env,"max_distance",[1],options);
 	
         var cc_options = {};
         cc_options['rule_type'] = true;
@@ -294,7 +286,7 @@
         overall_context['properties'] = {};
         overall_context['comparison_functions'] = {};
 
-		create_compound_constraint_template(env,"max_distance",["max_distance"],cc_options);	
+		create_compound_constraint(env,"max_distance",["max_distance"],cc_options);	
  
         overall_context['properties']['length'] = 1;
         overall_context['comparison_functions']['length'] = 
@@ -338,7 +330,7 @@
                 return result;
             };
 
-		create_constraint_template(env,"leap_up",[7],options);
+		create_simple_constraint(env,"leap_up",[7],options);
 	    
 
         //check for a leap down of a fourth or greater
@@ -357,7 +349,7 @@
                 return result;
             };
 
-		create_constraint_template(env,"recover_down",[-4],options);
+		create_simple_constraint(env,"recover_down",[-4],options);
 	
 
         //create compound constraint of upward leap recovery
@@ -367,8 +359,8 @@
         overall_context['properties'] = {};
         overall_context['comparison_functions'] = {};
 
-		create_compound_constraint_template(env,"upward_leap_recovery",
-                                            ["leap_up","recover_down"],cc_options);	
+		create_compound_constraint(env,"upward_leap_recovery",
+                                   ["leap_up","recover_down"],cc_options);	
  
         overall_context['properties']['length'] = 3;
         overall_context['comparison_functions']['length'] = 
@@ -409,7 +401,7 @@
                 return result;
             };
 
-		create_constraint_template(env,"leap_down",[-7],options);
+		create_simple_constraint(env,"leap_down",[-7],options);
 
         //check for a leap down of a fourth or greater
         var options = {};
@@ -427,7 +419,7 @@
                 return result;
             };
 
-		create_constraint_template(env,"recover_up",[4],options);
+		create_simple_constraint(env,"recover_up",[4],options);
 	
 
         //create compound constraint of upward leap recovery
@@ -437,8 +429,8 @@
         overall_context['properties'] = {};
         overall_context['comparison_functions'] = {};
 
-		create_compound_constraint_template(env,"downward_leap_recovery",
-                                            ["leap_down","recover_up"],cc_options);	
+		create_compound_constraint(env,"downward_leap_recovery",
+                                   ["leap_down","recover_up"],cc_options);	
  
         overall_context['properties']['length'] = 3;
         overall_context['comparison_functions']['length'] = 
