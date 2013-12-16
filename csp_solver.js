@@ -27,8 +27,9 @@
     alert(evaluate_matrix(matrix,constraint_list).toString());
     
 */
-    function evaluate_matrix(env,matrix){
+    function evaluate_matrix(env){
         
+        var matrix = env['matrix'];
 
         //array of a single number, allows them to be modified by reference
         var i = [0], j = [0];
