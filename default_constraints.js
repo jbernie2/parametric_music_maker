@@ -99,17 +99,21 @@ function apply_default_constraint(env,constraint){
 
         var compound_constraint = env['compound_constraint_lookup_by_name'][constraint['name']];
         var application_function = constraint['constraint_application_function'];
-        application_function(env, constraint['context'], compound_constraint);
+        application_function(env, 
+            constraint['context'], 
+            compound_constraint,
+            constraint['context']['properties']['length']);
+
 }
 
 
 //Default constraints
 
-function parallel_fifths(){
-    var parallel_fifths = empty_compound_constraint_info(2);
-    parallel_fifths['simple_constraints'][0]['name'] = "fifths";
-    parallel_fifths['simple_constraints'][0]['intervals'] = [6,7];
-    parallel_fifths['simple_constraints'][0]['options']['eval_function'] =
+function parallel_intervals(name,intervals,sequence_length){
+    var parallel_intervals = empty_compound_constraint_info(sequence_length);
+    parallel_intervals['simple_constraints'][0]['name'] = name;
+    parallel_intervals['simple_constraints'][0]['intervals'] = intervals;
+    parallel_intervals['simple_constraints'][0]['options']['eval_function'] =
          function(interval,intervals,options){
             if(interval == undefined)
                 return false;           
@@ -121,11 +125,13 @@ function parallel_fifths(){
             }
             return result;
         };
-    parallel_fifths['simple_constraints'][1] = parallel_fifths['simple_constraints'][0];
-    parallel_fifths['name'] = 'parallel_fifths';
-    parallel_fifths['options']['rule_type'] = false;
-    parallel_fifths['context']['properties']['length'] = 2;
-    parallel_fifths['context']['comparison_functions']['length'] = 
+    for(var i = 1; i < sequence_length; i++){
+        parallel_intervals['simple_constraints'][i] = parallel_intervals['simple_constraints'][0];
+    }
+    parallel_intervals['name'] = name;
+    parallel_intervals['options']['rule_type'] = false;
+    parallel_intervals['context']['properties']['length'] = sequence_length;
+    parallel_intervals['context']['comparison_functions']['length'] = 
         function(env,i,env_property,context_property){
             if(i+(context_property)-1 < env_property)
                 return true;
@@ -133,14 +139,14 @@ function parallel_fifths(){
                 return false; 
         };
 
-    parallel_fifths['constraint_application_function'] = apply_constraint_to_all_voices();
-    return parallel_fifths;
+    parallel_intervals['constraint_application_function'] = apply_constraint_to_all_voices();
+    return parallel_intervals;
 }
 
-function max_distance(){
+function max_distance(distance){
     var max_distance = empty_compound_constraint_info(1);
     max_distance['simple_constraints'][0]['name'] = "max_distance";
-    max_distance['simple_constraints'][0]['intervals'] = [12];
+    max_distance['simple_constraints'][0]['intervals'] = distance;
     max_distance['simple_constraints'][0]['options']['eval_function'] =
          function(interval,intervals,options){ 
             if(interval == undefined)
@@ -167,3 +173,133 @@ function max_distance(){
     max_distance['constraint_application_function'] = apply_constraint_to_adjacent_voices();
     return max_distance;
 }
+
+function min_distance(distance){
+    var min_distance = empty_compound_constraint_info(1);
+    min_distance['simple_constraints'][0]['name'] = "min_distance";
+    min_distance['simple_constraints'][0]['intervals'] = distance;
+    min_distance['simple_constraints'][0]['options']['eval_function'] =
+        function(interval,intervals,options){ 
+            if(interval == undefined)
+                return true;
+            var result = false;
+            interval = Math.abs(interval);
+            for(var i = 0; i < intervals.length; i++){
+                if(interval >= intervals[i])
+                    result = true;
+            }
+            return result;
+       };
+ 
+    min_distance['name'] = 'min_distance';
+    min_distance['options']['rule_type'] = true;
+    min_distance['context']['properties']['length'] = 1;
+    min_distance['context']['comparison_functions']['length'] = 
+        function(env,i,env_property,context_property){
+            if(i+(context_property)-1 < env_property)
+                return true;
+            else
+                return false; 
+        };
+
+    min_distance['constraint_application_function'] = apply_constraint_to_adjacent_voices();
+    return min_distance;
+}
+
+function upward_leap_recovery(){
+    var upward_leap_recovery = empty_compound_constraint_info(2);
+    upward_leap_recovery['simple_constraints'][0]['name'] = "upward_leap";
+    upward_leap_recovery['simple_constraints'][0]['intervals'] = [7];
+    upward_leap_recovery['simple_constraints'][0]['options']['eval_function'] =
+        function(interval,intervals,options){ 
+            if(interval == undefined)
+                return false;     
+            var result = false;
+            for(var i = 0; i < intervals.length; i++){
+                if(interval >= intervals[i])
+                    result = true;
+                }
+            return result;
+        };
+       
+    upward_leap_recovery['simple_constraints'][1]['name'] = "recover_down";
+    upward_leap_recovery['simple_constraints'][1]['intervals'] = [-4];
+    upward_leap_recovery['simple_constraints'][1]['options']['eval_function'] =
+        function(interval,intervals,options){ 
+
+            if(interval == undefined)
+                return false;
+            
+            var result = false;
+            for(var i = 0; i < intervals.length; i++){
+                if(interval <= intervals[i] || interval >= 0)
+                    result = true;
+                }
+            return result;
+        };
+
+
+    upward_leap_recovery['name'] = 'upward_leap_recovery';
+    upward_leap_recovery['options']['rule_type'] = false;
+    upward_leap_recovery['context']['properties']['length'] = 3;
+    upward_leap_recovery['context']['comparison_functions']['length'] = 
+        function(env,i,env_property,context_property){
+            if(i+(context_property)-1 < env_property)
+                return true;
+            else
+                return false; 
+        };
+
+    upward_leap_recovery['constraint_application_function'] = apply_constraint_horizontally();
+    return upward_leap_recovery;
+}
+
+function downward_leap_recovery(){
+    var downward_leap_recovery = empty_compound_constraint_info(2);
+    downward_leap_recovery['simple_constraints'][0]['name'] = "downward_leap";
+    downward_leap_recovery['simple_constraints'][0]['intervals'] = [-7];
+    downward_leap_recovery['simple_constraints'][0]['options']['eval_function'] =
+         function(interval,intervals,options){ 
+
+            if(interval == undefined)
+                return false;
+            
+            var result = false;
+            for(var i = 0; i < intervals.length; i++){
+                if(interval <= intervals[i])
+                    result = true;
+                }
+            return result;
+        };
+       
+    downward_leap_recovery['simple_constraints'][1]['name'] = "recover_up";
+    downward_leap_recovery['simple_constraints'][1]['intervals'] = [4];
+    downward_leap_recovery['simple_constraints'][1]['options']['eval_function'] =
+         function(interval,intervals,options){ 
+
+            if(interval == undefined)
+                return false;
+            
+            var result = false;
+            for(var i = 0; i < intervals.length; i++){
+                if(interval > intervals[i] || interval <= 0 )
+                    result = true;
+                }
+            return result;
+        };
+
+    downward_leap_recovery['name'] = 'downward_leap_recovery';
+    downward_leap_recovery['options']['rule_type'] = false;
+    downward_leap_recovery['context']['properties']['length'] = 3;
+    downward_leap_recovery['context']['comparison_functions']['length'] = 
+        function(env,i,env_property,context_property){
+            if(i+(context_property)-1 < env_property)
+                return true;
+            else
+                return false; 
+        };
+
+    downward_leap_recovery['constraint_application_function'] = apply_constraint_horizontally();
+    return downward_leap_recovery;
+}
+
