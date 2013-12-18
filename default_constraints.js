@@ -1,28 +1,25 @@
-//TODO: add the rest of the constraints with the same format
-
 
 //Application functions
 
 function apply_constraint_to_all_voices(){
-    return function(env, overall_context, constraint){
-        var context = [{},{}]; 
-        context[0]['offset'] = 0;
-        context[0]['second_offset'] = 0;
-        context[1]['offset'] = 1;
-        context[1]['second_offset'] = 1;
-
+    return function(env, overall_context, constraint, length){
+        var context = [];
         var num_voices = env['matrix'][0].length;
-        for(var i = 0; i < num_voices; i++){
-            for(var j = i+1; j < num_voices; j++){
-                if(i != j){
-                    context[0]['from_voice'] = i;
-                    context[0]['to_voice'] = j;
-                    context[1]['from_voice'] = i;
-                    context[1]['to_voice'] = j;
-                    constraint(env,overall_context,context);
+
+        for(var i = 0; i < length; i++){
+            context[i] = {};
+            context[i]['offset'] = i;
+            context[i]['second_offset'] = i;
+            for(var j = 0; j < num_voices; j++){
+                for(var k = j+1; k < num_voices; k++){
+                    if(i != j){
+                        context[i]['from_voice'] = j;
+                        context[i]['to_voice'] = k;
+                    }
                 }
             }
         }
+        constraint(env,overall_context,context);
     };
 }
 
@@ -31,8 +28,6 @@ function apply_constraint_to_adjacent_voices(){
         var context = [{},{}]; 
         context[0]['offset'] = 0;
         context[0]['second_offset'] = 0;
-        context[1]['offset'] = 1;
-        context[1]['second_offset'] = 1;
         
         var num_voices = env['matrix'][0].length;
         for(var i = 0; i < num_voices; i++){
@@ -206,10 +201,10 @@ function min_distance(distance){
     return min_distance;
 }
 
-function upward_leap_recovery(){
+function upward_leap_recovery(leap_interval,recovery_interval){
     var upward_leap_recovery = empty_compound_constraint_info(2);
     upward_leap_recovery['simple_constraints'][0]['name'] = "upward_leap";
-    upward_leap_recovery['simple_constraints'][0]['intervals'] = [7];
+    upward_leap_recovery['simple_constraints'][0]['intervals'] = leap_interval;
     upward_leap_recovery['simple_constraints'][0]['options']['eval_function'] =
         function(interval,intervals,options){ 
             if(interval == undefined)
@@ -223,7 +218,7 @@ function upward_leap_recovery(){
         };
        
     upward_leap_recovery['simple_constraints'][1]['name'] = "recover_down";
-    upward_leap_recovery['simple_constraints'][1]['intervals'] = [-4];
+    upward_leap_recovery['simple_constraints'][1]['intervals'] = recovery_interval;
     upward_leap_recovery['simple_constraints'][1]['options']['eval_function'] =
         function(interval,intervals,options){ 
 
@@ -254,10 +249,10 @@ function upward_leap_recovery(){
     return upward_leap_recovery;
 }
 
-function downward_leap_recovery(){
+function downward_leap_recovery(leap_interval, recovery_interval){
     var downward_leap_recovery = empty_compound_constraint_info(2);
     downward_leap_recovery['simple_constraints'][0]['name'] = "downward_leap";
-    downward_leap_recovery['simple_constraints'][0]['intervals'] = [-7];
+    downward_leap_recovery['simple_constraints'][0]['intervals'] = leap_interval;
     downward_leap_recovery['simple_constraints'][0]['options']['eval_function'] =
          function(interval,intervals,options){ 
 
@@ -273,7 +268,7 @@ function downward_leap_recovery(){
         };
        
     downward_leap_recovery['simple_constraints'][1]['name'] = "recover_up";
-    downward_leap_recovery['simple_constraints'][1]['intervals'] = [4];
+    downward_leap_recovery['simple_constraints'][1]['intervals'] = recovery_interval;
     downward_leap_recovery['simple_constraints'][1]['options']['eval_function'] =
          function(interval,intervals,options){ 
 

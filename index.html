@@ -25,6 +25,7 @@
 
 	<script type="text/javascript">
 
+        //utility functions
         function display_results_in_log(results){
             for(var i = results[0].length -1; i > -1; i--){
                 var melodic_line = "";
@@ -79,171 +80,14 @@
         apply_default_constraint(env,parallel_intervals("parallel_octaves",[12],2));
         apply_default_constraint(env,max_distance([12]));
         apply_default_constraint(env,min_distance([1]));
-        apply_default_constraint(env,upward_leap_recovery());
-        apply_default_constraint(env,downward_leap_recovery());
-
+        apply_default_constraint(env,upward_leap_recovery([5],[-4]));
+        apply_default_constraint(env,downward_leap_recovery([-5],[4]));
 
         //solve matrix
         var results = evaluate_matrix(env);   
     
         display_results_in_log(results);
- 
-
-
-
-
-
-
-
-
-/*
-
-        //create leap up recovery constraint
- 		
-        //checks for a leap up of a fifth or greater
-        var options = {};
-        options['eval_function'] = 
-            function(interval,intervals,options){ 
-
-                if(interval == undefined)
-                    return false;
-                
-                var result = false;
-                for(var i = 0; i < intervals.length; i++){
-                    if(interval >= intervals[i])
-                        result = true;
-                    }
-                return result;
-            };
-
-		create_simple_constraint(env,"leap_up",[7],options);
-	    
-
-        //check for a leap down of a fourth or greater
-        var options = {};
-        options['eval_function'] = 
-            function(interval,intervals,options){ 
-
-                if(interval == undefined)
-                    return false;
-                
-                var result = false;
-                for(var i = 0; i < intervals.length; i++){
-                    if(interval <= intervals[i] || interval >= 0)
-                        result = true;
-                    }
-                return result;
-            };
-
-		create_simple_constraint(env,"recover_down",[-4],options);
-	
-
-        //create compound constraint of upward leap recovery
-        var cc_options = {};
-        cc_options['rule_type'] = false;
-        var overall_context = {};
-        overall_context['properties'] = {};
-        overall_context['comparison_functions'] = {};
-
-		create_compound_constraint(env,"upward_leap_recovery",
-                                   ["leap_up","recover_down"],cc_options);	
- 
-        overall_context['properties']['length'] = 3;
-        overall_context['comparison_functions']['length'] = 
-            function(env,i,env_property,context_property){
-                if(i+(context_property)-1 < env_property)
-                    return true;
-                else
-                    return false; 
-            };
-
-        console.log("upward leap recovery");
-        var compound_constraint = compound_constraint_lookup_by_name['upward_leap_recovery'];
-        apply_constraint_horizontally(overall_context, compound_constraint,3);      
-     
-
-
-
-
-
-   
-           
-
-        //downward leap recovery constraint
-        
-        //checks for a leap up of a fifth or greater
-        var options = {};
-        options['eval_function'] = 
-            function(interval,intervals,options){ 
-
-                if(interval == undefined)
-                    return false;
-                
-                var result = false;
-                for(var i = 0; i < intervals.length; i++){
-                    if(interval <= intervals[i])
-                        result = true;
-                    }
-                return result;
-            };
-
-		create_simple_constraint(env,"leap_down",[-7],options);
-
-        //check for a leap down of a fourth or greater
-        var options = {};
-        options['eval_function'] = 
-            function(interval,intervals,options){ 
-
-                if(interval == undefined)
-                    return false;
-                
-                var result = false;
-                for(var i = 0; i < intervals.length; i++){
-                    if(interval > intervals[i] || interval <= 0 )
-                        result = true;
-                    }
-                return result;
-            };
-
-		create_simple_constraint(env,"recover_up",[4],options);
-	
-
-        //create compound constraint of upward leap recovery
-        var cc_options = {};
-        cc_options['rule_type'] = false;
-        var overall_context = {};
-        overall_context['properties'] = {};
-        overall_context['comparison_functions'] = {};
-
-		create_compound_constraint(env,"downward_leap_recovery",
-                                   ["leap_down","recover_up"],cc_options);	
- 
-        overall_context['properties']['length'] = 3;
-        overall_context['comparison_functions']['length'] = 
-            function(env,i,env_property,context_property){
-                if(i+(context_property)-1 < env_property)
-                    return true;
-                else
-                    return false; 
-            };
-
-        console.log("downward leap recovery");
-        var compound_constraint = compound_constraint_lookup_by_name['downward_leap_recovery'];
-        apply_constraint_horizontally(overall_context, compound_constraint,3);      
-  */      
-
-
-
-
-
-
-
-
-
-
- 
   
 	</script>
-
     </body>
 </html>
