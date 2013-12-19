@@ -1,33 +1,5 @@
 
-//$(document).ready(function(){
-//test code
-/*
-    var constraint_list = new Array();
-
-    constraint_list.push(function(){
-            var temp = Math.floor(Math.random()*2);
-            if(temp < 1)
-                return true;
-            else
-                return false;
-        });
-
-    var matrix = [
-                    [
-                        [1,2],
-                        [1,2]
-                    ],
-                    [
-                        [1,2],
-                        [1,2]
-                    ]
-                 ];
-
-
-    alert(evaluate_matrix(matrix,constraint_list).toString());
-    
-*/
-    function evaluate_matrix(env){
+   function evaluate_matrix(env){
         
         var matrix = env['matrix'];
 
@@ -122,5 +94,4 @@
         }
         return solution_matrix;
     }
-//});
 

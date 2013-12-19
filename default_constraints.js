@@ -4,22 +4,29 @@
 function apply_constraint_to_all_voices(){
     return function(env, overall_context, constraint, length){
         var context = [];
+        context[0] = {};
+        context[1] = {};
         var num_voices = env['matrix'][0].length;
 
-        for(var i = 0; i < length; i++){
-            context[i] = {};
-            context[i]['offset'] = i;
-            context[i]['second_offset'] = i;
-            for(var j = 0; j < num_voices; j++){
-                for(var k = j+1; k < num_voices; k++){
-                    if(i != j){
-                        context[i]['from_voice'] = j;
-                        context[i]['to_voice'] = k;
+        for(var i = 0; i < num_voices; i++){
+            for(var j = i+1; j < num_voices; j++){
+                if(i != j){
+                    context[0]['from_voice'] = i;
+                    context[0]['to_voice'] = j;
+                    context[1]['from_voice'] = i;
+                    context[1]['to_voice'] = j;
+
+                    for(var k = 0; k < length; k++){
+                        context[0]['offset'] = k;
+                        context[0]['second_offset'] = k;
+                        context[1]['offset'] = k + 1;
+                        context[1]['second_offset'] = k + 1;
+                        
+                        constraint(env,overall_context,context);
                     }
                 }
             }
         }
-        constraint(env,overall_context,context);
     };
 }
 
@@ -57,11 +64,39 @@ function apply_constraint_horizontally(){
     };
 }
 
+//a constraint needs to be given the following information to be created
+//  name : a name that describes the purpose of the constraint in a
+//      word or two
+//  intervals : an array that contains the intervals which are relevant to
+//      the constraint's evalutaion function
+//  options : this might get removed, currently only contains the evalutaion
+//      function
+//  eval_function : the function that is run to determine the truth value of
+//      the constraint
 function empty_simple_constraint_info(){
     var simple_constraint_info = {};
     simple_constraint_info['options'] = {};
     return simple_constraint_info;
 }
+
+//a compound constraint needs the following information to be created
+//  options : might get removed currently only contains rule_type
+//  rule_type : either true or false, this is the value which the
+//      the conjunction of the compound_constraint's simple constraints
+//      must reach for the compound_constraint to return true
+//  context : contains information about the context under which the 
+//      the compound constraint should be applied
+//  properties : field in context, can contain various types of information
+//      about where to apply the constraint, be it only for certain chords,
+//      or only at certain position in the matrix
+//  comparison_functions : field in context. Each property must have a 
+//      comparison function so that it can be checked against the properties
+//      of the matrix
+//  constraint_application_function : after the context under which to apply
+//      the constraint is found, this function goes and actually calls the
+//      necessary function to apply it. some of the default application
+//      function apply the simple constraint to all pairs of voices, some
+//      apply only to adjacent voices.
 
 function empty_compound_constraint_info(num_constraints){
     var compound_constraint_info = {};
@@ -109,7 +144,7 @@ function parallel_intervals(name,intervals,sequence_length){
     parallel_intervals['simple_constraints'][0]['name'] = name;
     parallel_intervals['simple_constraints'][0]['intervals'] = intervals;
     parallel_intervals['simple_constraints'][0]['options']['eval_function'] =
-         function(interval,intervals,options){
+         function(env,note1,note2,interval,intervals,options){
             if(interval == undefined)
                 return false;           
             var result = false;
@@ -143,7 +178,7 @@ function max_distance(distance){
     max_distance['simple_constraints'][0]['name'] = "max_distance";
     max_distance['simple_constraints'][0]['intervals'] = distance;
     max_distance['simple_constraints'][0]['options']['eval_function'] =
-         function(interval,intervals,options){ 
+         function(env,note1,note2,interval,intervals,options){ 
             if(interval == undefined)
                 return true;
             var result = false;
@@ -174,7 +209,7 @@ function min_distance(distance){
     min_distance['simple_constraints'][0]['name'] = "min_distance";
     min_distance['simple_constraints'][0]['intervals'] = distance;
     min_distance['simple_constraints'][0]['options']['eval_function'] =
-        function(interval,intervals,options){ 
+        function(env,note1,note2,interval,intervals,options){ 
             if(interval == undefined)
                 return true;
             var result = false;
@@ -206,7 +241,7 @@ function upward_leap_recovery(leap_interval,recovery_interval){
     upward_leap_recovery['simple_constraints'][0]['name'] = "upward_leap";
     upward_leap_recovery['simple_constraints'][0]['intervals'] = leap_interval;
     upward_leap_recovery['simple_constraints'][0]['options']['eval_function'] =
-        function(interval,intervals,options){ 
+        function(env,note1,note2,interval,intervals,options){ 
             if(interval == undefined)
                 return false;     
             var result = false;
@@ -220,7 +255,7 @@ function upward_leap_recovery(leap_interval,recovery_interval){
     upward_leap_recovery['simple_constraints'][1]['name'] = "recover_down";
     upward_leap_recovery['simple_constraints'][1]['intervals'] = recovery_interval;
     upward_leap_recovery['simple_constraints'][1]['options']['eval_function'] =
-        function(interval,intervals,options){ 
+        function(env,note1,note2,interval,intervals,options){ 
 
             if(interval == undefined)
                 return false;
@@ -254,7 +289,7 @@ function downward_leap_recovery(leap_interval, recovery_interval){
     downward_leap_recovery['simple_constraints'][0]['name'] = "downward_leap";
     downward_leap_recovery['simple_constraints'][0]['intervals'] = leap_interval;
     downward_leap_recovery['simple_constraints'][0]['options']['eval_function'] =
-         function(interval,intervals,options){ 
+         function(env,note1,note2,interval,intervals,options){ 
 
             if(interval == undefined)
                 return false;
@@ -270,7 +305,7 @@ function downward_leap_recovery(leap_interval, recovery_interval){
     downward_leap_recovery['simple_constraints'][1]['name'] = "recover_up";
     downward_leap_recovery['simple_constraints'][1]['intervals'] = recovery_interval;
     downward_leap_recovery['simple_constraints'][1]['options']['eval_function'] =
-         function(interval,intervals,options){ 
+         function(env,note1,note2,interval,intervals,options){ 
 
             if(interval == undefined)
                 return false;

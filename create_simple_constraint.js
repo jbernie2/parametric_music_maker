@@ -1,5 +1,9 @@
+//creates an unapplied simple constraint
 function create_simple_constraint(env,name,intervals,options){
     var constraint_lookup_by_name = env['constraint_lookup_by_name'];
+    
+    //function that can be used to apply a constraint to a certain 
+    //position in the matrix, and gives the constraint an id
     constraint_lookup_by_name[name] = 
         function(chord1,voice1,chord2,voice2){
             return function(id){
@@ -16,13 +20,19 @@ function create_simple_constraint(env,name,intervals,options){
                 if(!constraint_lookup_by_position[chord2][voice2])
                     constraint_lookup_by_position[chord2][voice2] = new Array();
 
+                //place constraint in lookup table that maps a note's
+                //position to its constraints
                 constraint_lookup_by_position[chord1][voice1].push(id);
                 constraint_lookup_by_position[chord2][voice2].push(id);
                 
+                //the note that occurs earlier in time will be note1
+                //unless the notes occur at the same time, then the
+                //note in the lower voice will be note 1
                 var note1 = {};
                 var note2 = {};
                 set_note_positions(note1,note2);
 
+                //main control function for checking a note against a constraint
                 return function(matrix){
                     var interval = undefined;
                     var result = undefined;
@@ -30,10 +40,15 @@ function create_simple_constraint(env,name,intervals,options){
                         env['constraint_result_lookup'];
                     var eval_function = options['eval_function'];
 
+                    //checks if any notes' values need to be reset
                     detect_backtrack(env,matrix);
+                    //get the interval between the two notes
                     interval = get_interval(matrix);
-                    result = eval_function(interval,intervals,options);
+                    //pass the note choice to the constraint's evaluation function
+                    result = eval_function(env,note1,note2,interval,intervals,options);
                     constraint_result_lookup[id] = result;
+                    //check the truth value of the compound constraint to which
+                    //the simple constraint belongs
                     return check_compound_constraint(id);
                 }
                 function get_interval(matrix){
@@ -55,9 +70,13 @@ function create_simple_constraint(env,name,intervals,options){
                     var constraint_result_lookup = env['constraint_result_lookup'];
                     var backtrack = env['backtrack'];
 
+                    //positions to reset are pushed onto the backtrack variable
+                    //checks if there were any values pushed
                     if(backtrack.length == 0){
                         return;
                     }
+                    //for each position in backtrack
+                    //reset the truth value of its constraints
                     for(var i = 0; i < backtrack.length; i++){
                         var chord = backtrack[i][0];
                         var voice = backtrack[i][1];
@@ -66,6 +85,7 @@ function create_simple_constraint(env,name,intervals,options){
                     }
                     env['backtrack'] = [];
 
+                    //set a positions constraints to undefined 
                     function reset_constraints(constraint_id_list){
                         for(var i = 0; i < constraint_id_list.length; i++){
                             var id = constraint_id_list[i];
@@ -73,6 +93,10 @@ function create_simple_constraint(env,name,intervals,options){
                         }
                     }
                 }
+                //check the truth value of the compound constraint
+                //which the simple constraint is a part of, this is
+                //the value that gets returned to the main control loop
+                //in the csp solver
                 function check_compound_constraint(constraint_id){
 
                     var reverse_constraint_lookup = 

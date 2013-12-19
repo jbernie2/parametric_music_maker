@@ -1,7 +1,10 @@
+
+//creates an unapplied compound_constraint
 function create_compound_constraint(env,name,constraint_names,options){
     compound_constraint_lookup_by_name = 
         env['compound_constraint_lookup_by_name'];
     
+    //function to apply compound_constraint to a given position
     compound_constraint_lookup_by_name[name] = 
         function(env,overall_context,context){
             
@@ -74,8 +77,6 @@ function get_relevant_positions(env,overall_context){
             return positions; 
         }
 
-        //WORKING
-
         //find all positions that matched all properties
         function find_universal_positions(){
             var universal_positions = new Array();
@@ -96,8 +97,6 @@ function get_relevant_positions(env,overall_context){
         }
 
         
-        //WORKING
-
         //loop through all properties of the constraint and see if
         //there are any that match environment properties, if they have the same
         //name, they match. If they match, check to see if the properties have
