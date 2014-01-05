@@ -9,10 +9,6 @@
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="bootstrap/js/bootstrap.min.js"></script>
 
-
-        <!-- <script src="vexflow/build/vexflow/vexflow-min.js"></script> -->
-        <!-- <script src="vexflow_test.js"></script> -->
-
         <script src="initialize_environment.js"></script>
         <script src="csp_solver.js"></script>
         <script src="create_matrix.js"></script>
@@ -20,11 +16,23 @@
         <script src="create_compound_constraint.js"></script>
         <script src="default_constraints.js"></script>
 
+        <!-- used to display and play music -->
+        <script src="vextab/support/vexflow-min.js"></script> 
+        <script src="vextab/support/raphael.js"></script> 
+
+        <!-- convert solution array to notation -->
+        <script src="render_score.js"></script> 
+
+
     </head>
     <body>
 
-	<script type="text/javascript">
 
+    <canvas width=700 height=100"></canvas>
+
+
+	<script type="text/javascript">
+ 
         //utility functions
         function display_results_in_log(results){
             for(var i = results[0].length -1; i > -1; i--){
