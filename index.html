@@ -4,12 +4,11 @@
         <title>Test</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
-        <!-- Bootstrap -->
+ 
+        <!-- third party libraries -->       
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="bootstrap/js/bootstrap.min.js"></script>
-
         <!-- midi.js package -->
         <script src="./MIDI.js/js/MIDI/AudioDetect.js" type="text/javascript"></script>
         <script src="./MIDI.js/js/MIDI/LoadPlugin.js" type="text/javascript"></script>
@@ -20,7 +19,12 @@
         <!-- midi.js extras -->
         <script src="./MIDI.js/inc/Base64.js" type="text/javascript"></script>
         <script src="./MIDI.js/inc/base64binary.js" type="text/javascript"></script>
+        <!-- vexflow, displays musical score -->
+        <script src="vextab/support/vexflow-min.js"></script>
+        <script src="vextab/support/raphael.js"></script>
         
+
+        <!-- custom code -->
         <!-- parametric music maker -->
         <script src="initialize_environment.js"></script>
         <script src="csp_solver.js"></script>
@@ -28,34 +32,16 @@
         <script src="create_simple_constraint.js"></script>
         <script src="create_compound_constraint.js"></script>
         <script src="default_constraints.js"></script>
+        <script src="render_midi.js"></script>
+        <script src="render_score.js"></script>
 
     </head>
     <body>
+    <canvas width=700 height=1000></canvas>
+
     <script type="text/javascript">
 
-        //play results as midi
-        function play_midi_matrix(matrix){
-            MIDI.loadPlugin({
-                soundfontUrl: "MIDI.js/soundfont/",
-                instrument: "acoustic_grand_piano",
-                callback: function() {return play_midi_matrix_callback()}
-            });
 
-            function play_midi_matrix_callback(){
-                var delay = 0.75; // play one note every quarter second
-                var velocity = 64; // how hard the note hits
-                MIDI.setVolume(0, 127);
-                for(var i = 0; i < matrix.length; i++){
-                    for(var j = 0; j < matrix[i].length; j++){
-                        var note = matrix[i][j]; // the MIDI note
-                        // play the note
-                        MIDI.noteOn(0, note, velocity, (i * delay));
-                        MIDI.noteOff(0, note, ((i+1)*delay));
-                    }
-                }
-            }
-        }
- 
         //utility functions
         function display_results_in_log(results){
             for(var i = results[0].length -1; i > -1; i--){
@@ -115,8 +101,11 @@
         //show results
         display_results_in_log(results);
 
+        //show score
+        render_score(results);
+
         //play results
-        play_midi_matrix(results);
+        render_midi(results);
 
 	</script>
     </body>
