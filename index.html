@@ -4,15 +4,27 @@
         <title>Test</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
         <!-- Bootstrap -->
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="bootstrap/js/bootstrap.min.js"></script>
 
-
+        <!-- midi.js package -->
+        <script src="./MIDI.js/js/MIDI/AudioDetect.js" type="text/javascript"></script>
+        <script src="./MIDI.js/js/MIDI/LoadPlugin.js" type="text/javascript"></script>
+        <script src="./MIDI.js/js/MIDI/Plugin.js" type="text/javascript"></script>
+        <script src="./MIDI.js/js/MIDI/Player.js" type="text/javascript"></script>
+        <script src="./MIDI.js/js/Window/DOMLoader.XMLHttp.js" type="text/javascript"></script>
+        <script src="./MIDI.js/js/Window/DOMLoader.script.js" type="text/javascript"></script>
+        <!-- midi.js extras -->
+        <script src="./MIDI.js/inc/Base64.js" type="text/javascript"></script>
+        <script src="./MIDI.js/inc/base64binary.js" type="text/javascript"></script>
+        
         <!-- <script src="vexflow/build/vexflow/vexflow-min.js"></script> -->
         <!-- <script src="vexflow_test.js"></script> -->
 
+        <!-- parametric music maker -->
         <script src="initialize_environment.js"></script>
         <script src="csp_solver.js"></script>
         <script src="create_matrix.js"></script>
@@ -22,8 +34,30 @@
 
     </head>
     <body>
+    <script type="text/javascript">
 
-	<script type="text/javascript">
+        //play results as midi
+        function play_midi_matrix(matrix){
+            MIDI.loadPlugin({
+                soundfontUrl: "MIDI.js/soundfont/",
+                instrument: "acoustic_grand_piano",
+                callback: function() {return play_midi_matrix_callback()}
+            });
+
+            function play_midi_matrix_callback(){
+                var delay = 0.75; // play one note every quarter second
+                var velocity = 64; // how hard the note hits
+                MIDI.setVolume(0, 127);
+                for(var i = 0; i < matrix.length; i++){
+                    for(var j = 0; j < matrix[i].length; j++){
+                        var note = matrix[i][j]; // the MIDI note
+                        // play the note
+                        MIDI.noteOn(0, note, velocity, (i * delay));
+                        MIDI.noteOff(0, note, ((i+1)*delay));
+                    }
+                }
+            }
+        }
 
         //utility functions
         function display_results_in_log(results){
@@ -50,13 +84,8 @@
                 unison:u
             };
         }
-        function make_chord_list(){
-            this.I=[0,4,7];
-            this.IV=[5,9,0];
-            this.V=[7,11,2];
-        }
 
- 
+
         //intialize environment   
         var env = initialize_environment();
         env['length'] = 4;
@@ -69,8 +98,8 @@
                              make_voice(66,85,false,true)];
     
         //set chord progression
-        chord_progression = ["I","IV","V","I"];
-        var chord_list = {I:[0,4,7],IV:[5,9,0],V:[7,11,2]};
+        chord_progression = ["I","ii","V","vi","V7_V","V","I"];
+        var chord_list = {I:[0,4,7],IV:[5,9,0],V:[7,11,2],V7_V:[2,6,9,0],vi:[9,0,4],ii:[2,5,9]};
 
         //create matrix to solve 
         env['matrix'] = create_matrix(voicing_rules,chord_progression,chord_list);
@@ -85,9 +114,13 @@
 
         //solve matrix
         var results = evaluate_matrix(env);   
-    
+
+        //show results
         display_results_in_log(results);
-  
+
+        //play results
+        play_midi_matrix(results);
+
 	</script>
     </body>
 </html>
