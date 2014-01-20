@@ -18,10 +18,11 @@ function create_compound_constraint(env,name,constraint_names,options){
 
             //for each valid position to apply constraint
             for(var i = 0; i < constraint_positions.length; i++){
-                 var constraint_id_list = [];
-                 var compound_constraint_id = next_id();
-                 var applied_constraints = 
-                  apply_compound_constraint(env,constraint_positions[i],constraint_names,context);
+
+                var constraint_id_list = [];
+                var compound_constraint_id = next_id();
+                var applied_constraints = 
+                    apply_compound_constraint(env,constraint_positions[i],constraint_names,context);
 
                 //take the list of applied constraints and give each constraint an
                 //id and place it in the lookup tables

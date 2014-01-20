@@ -71,21 +71,19 @@
 
         //intialize environment   
         var env = initialize_environment();
-        env['length'] = 4;
-        env['chord_progression'] = ["I","IV","V","I"];
- 
+        env['length'] = 7;
+        env['chord_progression'] = ["I","ii","V","vi","V7_V","V","I"];
+        env['chord_list'] = 
+            {I:[0,4,7],IV:[5,9,0],V:[7,11,2],V7_V:[2,6,9,0],vi:[9,0,4],ii:[2,5,9]};
+        
         //set up voicing rules 
         var voicing_rules = [make_voice(30,49,false,true),
                              make_voice(42,61,false,true),
                              make_voice(54,73,false,true),
                              make_voice(66,85,false,true)];
     
-        //set chord progression
-        chord_progression = ["I","ii","V","vi","V7_V","V","I"];
-        var chord_list = {I:[0,4,7],IV:[5,9,0],V:[7,11,2],V7_V:[2,6,9,0],vi:[9,0,4],ii:[2,5,9]};
-
         //create matrix to solve 
-        env['matrix'] = create_matrix(voicing_rules,chord_progression,chord_list);
+        env['matrix'] = create_matrix(voicing_rules,env['chord_progression'],env['chord_list']);
 
         //apply constraints to matrix
         apply_default_constraint(env,parallel_intervals("parallel_fifths",[6,7],2));
